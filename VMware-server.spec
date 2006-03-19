@@ -2,13 +2,13 @@
 # This doesn't work at all yet. I don't know if the management interface is needed
 # (bundling apache seems like a sooooooooo great idea). Maybe it is possible to
 # setup the server part by hand. The perl module in perl/control.tar needs to
-# be packaged (vmware-cmd requires that). Something needs to be done with 
+# be packaged (vmware-cmd requires that). Something needs to be done with
 # the authd (inetd integration is needed I guess).
-# 
+#
 # The modules from any-any upgrade are too old (I used the ones comming with VMw-S).
 #
 # It builds on amd64, I have changed the networking package not to require the main package
-# so it can be installed outside 32bit chroot. 
+# so it can be installed outside 32bit chroot.
 #
 # But hey, it's at least free ;-)
 #
@@ -60,7 +60,7 @@ URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
 %{?with_dist_kernel:BuildRequires:	kernel-module-build >= 2.6.7}
 BuildRequires:	rpm-perlprov
-BuildRequires:	rpmbuild(macros) >= 1.217
+BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRequires:	sed >= 4.0
 Requires:	kernel(vmmon) = %{version}-%{_rel}
 Requires:	libgnomecanvasmm
@@ -70,9 +70,9 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_noautoprovfiles %{_libdir}/vmware*/lib/.*\.so.*
 
 %description
-VMware Server Virtual Platform is a thin software layer that
-allows multiple guest operating systems to run concurrently on a
-single standard PC, without repartitioning or rebooting, and without
+VMware Server Virtual Platform is a thin software layer that allows
+multiple guest operating systems to run concurrently on a single
+standard PC, without repartitioning or rebooting, and without
 significant loss of performance.
 
 %description -l pl
@@ -514,17 +514,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %post networking
 /sbin/chkconfig --add vmnet
-if [ -r /var/lock/subsys/vmnet ]; then
-	/etc/rc.d/init.d/vmnet restart >&2
-else
-	echo "Run \"/etc/rc.d/init.d/vmnet start\" to start VMware networking service."
-fi
+%service vmnet restart "VMware networking service"
 
 %preun networking
 if [ "$1" = "0" ]; then
-	if [ -r /var/lock/subsys/vmnet ]; then
-		/etc/rc.d/init.d/vmnet stop >&2
-	fi
+	%service vmnet stop
 	/sbin/chkconfig --del vmnet
 fi
 

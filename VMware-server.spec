@@ -46,7 +46,7 @@ Source0:	http://download3.vmware.com/software/vmserver/%{name}-%{_ver}-%{_build}
 Source1:	http://download3.vmware.com/software/vmserver/VMware-mui-%{_ver}-%{_build}.tar.gz
 # NoSource1-md5:	91821fc2649749911f0e2d0ca37b3eb8
 Source2:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# Source2-md5:	3c5f275d57a812276eec8446b94afd53
+# NoSource2-md5:	a597505f4827d0015d47c30eb41e21e4
 Source3:	%{name}.init
 Source4:	%{name}-vmnet.conf
 Source5:	%{name}.png

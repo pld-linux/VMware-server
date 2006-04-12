@@ -58,7 +58,7 @@ Patch1:		%{name}-run_script.patch
 NoSource:	0
 URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
-%{?with_dist_kernel:BuildRequires:	kernel-module-build >= 2.6.7}
+%{?with_dist_kernel:BuildRequires:	kernel-module-build >= 3:2.6.7}
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRequires:	sed >= 4.0
@@ -606,6 +606,7 @@ fi
 %{_desktopdir}/%{name}.desktop
 
 %files console
+%defattr(644,root,root,755)
 %dir %{_sysconfdir}/vmware-console
 %{_sysconfdir}/vmware-console/locations
 %attr(755,root,root) %{_bindir}/vmware-console

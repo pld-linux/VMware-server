@@ -135,8 +135,10 @@ Pliki pomocy dla konsoli VMware Server.
 Summary:	VMware networking utilities
 Summary(pl):	Narzêdzia VMware do obs³ugi sieci
 Group:		Applications/Emulators
+Requires(post,preun):	/sbin/chkconfig
 #Requires:	%{name} = %{version}-%{release}
 Requires:	kernel(vmnet) = %{version}-%{_rel}
+Requires:	rc-scripts
 
 %description networking
 VMware networking utilities.
@@ -507,7 +509,6 @@ install lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
 install vmware-console-distrib/lib/bin/vmware-console $RPM_BUILD_ROOT%{_bindir}
 %endif
 %endif
-
 
 %clean
 rm -rf $RPM_BUILD_ROOT

@@ -31,7 +31,7 @@
 #
 %define		_ver	e.x.p
 %define		_build	22874
-%define		_rel	0.1
+%define		_rel	0.2
 %define		_urel	101
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
@@ -494,7 +494,7 @@ install lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware-server/bin
 cp -r	lib/{bin-debug,config,help*,isoimages,licenses,messages,xkeymap} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware-server
 
-cp -r	vmware-console-distrib/lib/{bin-debug,config,help*,messages,xkeymap} \
+cp -r	vmware-console-distrib/lib/{bin-debug,config,help*,messages,xkeymap,share} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware-console
 
 install vmware-console-distrib/lib/bin/vmware-remotemks $RPM_BUILD_ROOT%{_libdir}/vmware-console/bin
@@ -638,6 +638,7 @@ fi
 %endif
 %dir %{_libdir}/vmware-console/messages
 %lang(ja) %{_libdir}/vmware-console/messages/ja
+%{_libdir}/vmware-console/share
 %{_libdir}/vmware-console/xkeymap
 %{_mandir}/man1/vmware-console.1*
 

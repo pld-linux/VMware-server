@@ -30,9 +30,10 @@
 %endif
 #
 %define		_ver	e.x.p
-%define		_build	20925
-%define		_rel	1
-%define		_urel	98
+%define		_build	22874
+%define		_rel	0.1
+%define		_urel	101
+%define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
 Summary:	VMware Server
 Summary(pl):	VMware Server - wirtualna platforma dla stacji roboczej
@@ -42,11 +43,11 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/vmserver/%{name}-%{_ver}-%{_build}.tar.gz
-# NoSource0-md5:	91821fc2649749911f0e2d0ca37b3eb8
+# NoSource0-md5:	3ef78e4deb44e51e99043e008c5a0e90
 Source1:	http://download3.vmware.com/software/vmserver/VMware-mui-%{_ver}-%{_build}.tar.gz
-# NoSource1-md5:	91821fc2649749911f0e2d0ca37b3eb8
+# NoSource1-md5:	4666688c7f1782022b55618f3cd620e8
 Source2:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# NoSource2-md5:	a597505f4827d0015d47c30eb41e21e4
+# NoSource2-md5:	b3ce457f5b9ae8b606fd70f56084877d
 Source3:	%{name}.init
 Source4:	%{name}-vmnet.conf
 Source5:	%{name}.png
@@ -352,18 +353,33 @@ for mod in vmmon vmnet ; do
 		rm -rf $mod-only
 		cp -a $mod-only.clean $mod-only
 		cd $mod-only
-		install -d include/{linux,config}
-		touch include/config/MARKER
-		ln -sf %{_kernelsrcdir}/config-$cfg .config
-		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
-		ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm
-		ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm-%{_target_base_arch}
-		ln -sf %{_kernelsrcdir}/Module.symvers-$cfg Module.symvers
+		install -d o/include/linux
+		ln -sf %{_kernelsrcdir}/config-$cfg o/.config
+		ln -sf %{_kernelsrcdir}/Module.symvers-$cfg o/Module.symvers
+		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h o/include/linux/autoconf.h
+	if grep -q "^CONFIG_PREEMPT_RT=y$" o/.config; then
+		sed -e '/pollQueueLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(pollQueueLock)/' \
+			-e '/timerLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(timerLock)/' \
+			-i ../vmmon-only/linux/driver.c
+		sed -e 's/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(vnetHubLock)/' \
+			-i ../vmnet-only/hub.c
+		sed -e 's/RW_LOCK_UNLOCKED/RW_LOCK_UNLOCKED(vnetPeerLock)/' \
+			-i ../vmnet-only/driver.c
+	fi
+	%if %{with dist_kernel}
+		%{__make} -C %{_kernelsrcdir} O=$PWD/o prepare scripts
+	%else
+		install -d o/include/config
+		touch o/include/config/MARKER
+		ln -sf %{_kernelsrcdir}/scripts o/scripts
+		%endif
 		%{__make} -C %{_kernelsrcdir} modules \
 			VMWARE_VER=VME_V5 \
-			M=$PWD O=$PWD \
+			SRCROOT=$PWD \
+			M=$PWD O=$PWD/o \
 			VM_KBUILD=26 \
-			%{?with_verbose:V=1}
+			%{?with_verbose:V=1} \
+			VM_CCVER=%{_ccver}
 		mv -f $mod.ko ../built/$mod-$cfg.ko
 		cd -
 	done

@@ -31,7 +31,7 @@
 #
 %define		_ver	e.x.p
 %define		_build	22874
-%define		_rel	0.2
+%define		_rel	0.3
 %define		_urel	101
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
@@ -323,6 +323,7 @@ cp -a vmmon-only{,.clean}
 cp -a vmnet-only{,.clean}
 cd -
 %patch1 -p1
+tar xf lib/perl/control.tar
 
 %build
 sed -i 's:vm_db_answer_LIBDIR:VM_LIBDIR:g;s:vm_db_answer_BINDIR:VM_BINDIR:g' bin/vmware
@@ -338,6 +339,18 @@ rm -f update
 ./update bridge		../bin/vmnet-bridge
 %endif
 cd -
+
+%if %{with userspace}
+	cd control-only
+	perl Makefile.PL
+	sed -i "s:^INSTALLSITEARCH.*$:INSTALLSITEARCH = %{perl_vendorarch}:" Makefile
+	sed -i "s:^INSTALLSITELIB.*$:INSTALLSITELIB = %{perl_vendorlib}:" Makefile
+	sed -i "s:^INSTALLSITEMAN1DIR.*$:INSTALLSITEMAN1DIR = %{_mandir}/man1:" Makefile
+	sed -i "s:^INSTALLSITEMAN3DIR.*$:INSTALLSITEMAN3DIR = %{_mandir}/man3:" Makefile
+
+	%{__make}
+	cd ..
+%endif
 
 %if %{with kernel}
 cd lib/modules/source
@@ -438,6 +451,11 @@ install -d \
 	$RPM_BUILD_ROOT%{_desktopdir} \
 	$RPM_BUILD_ROOT/etc/rc.d/init.d \
 	$RPM_BUILD_ROOT/var/run/vmware
+
+	cd control-only
+	%{__make} install \
+		DESTDIR=$RPM_BUILD_ROOT
+	cd ..
 %endif
 
 %if %{with kernel}
@@ -491,7 +509,7 @@ install sbin/*-* $RPM_BUILD_ROOT%{_sbindir}
 install lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware-server/bin
 
 #cp -r	lib/{bin-debug,config,help*,isoimages,licenses,messages,smb,xkeymap} \
-cp -r	lib/{bin-debug,config,help*,isoimages,licenses,messages,xkeymap} \
+cp -r	lib/{bin-debug,config,help*,isoimages,licenses,messages,xkeymap,share} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware-server
 
 cp -r	vmware-console-distrib/lib/{bin-debug,config,help*,messages,xkeymap,share} \
@@ -616,8 +634,12 @@ fi
 %dir %{_libdir}/vmware-server/messages
 %{_libdir}/vmware-server/messages/en
 %lang(ja) %{_libdir}/vmware-server/messages/ja
+%{_libdir}/vmware-server/share
 %{_libdir}/vmware-server/xkeymap
 %{_mandir}/man1/vmware.1*
+%{_mandir}/man3/*
+%{perl_vendorarch}/VMware
+%{perl_vendorarch}/auto/VMware
 %attr(1777,root,root) %dir /var/run/vmware
 %{_pixmapsdir}/*.png
 %{_desktopdir}/%{name}.desktop
@@ -637,6 +659,7 @@ fi
 %attr(755,root,root) %{_libdir}/vmware-console/lib/wrapper-gtk24.sh
 %endif
 %dir %{_libdir}/vmware-console/messages
+#%{_libdir}/vmware-console/messages/en
 %lang(ja) %{_libdir}/vmware-console/messages/ja
 %{_libdir}/vmware-console/share
 %{_libdir}/vmware-console/xkeymap

@@ -57,6 +57,8 @@ Source8:	%{name}-dhcpd.conf
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-run_script.patch
 NoSource:	0
+NoSource:	1
+NoSource:	2
 URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
 %{?with_dist_kernel:BuildRequires:	kernel-module-build >= 3:2.6.7}

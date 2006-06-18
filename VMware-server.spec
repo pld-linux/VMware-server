@@ -30,8 +30,8 @@
 %endif
 #
 %define		_ver	e.x.p
-%define		_build	22874
-%define		_rel	0.3
+%define		_build	23869
+%define		_rel	0.1
 %define		_urel	101
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
@@ -43,9 +43,9 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/vmserver/%{name}-%{_ver}-%{_build}.tar.gz
-# NoSource0-md5:	3ef78e4deb44e51e99043e008c5a0e90
+# NoSource0-md5:	fdce90d9f91f0ca5329105e2d8be75f0
 Source1:	http://download3.vmware.com/software/vmserver/VMware-mui-%{_ver}-%{_build}.tar.gz
-# NoSource1-md5:	4666688c7f1782022b55618f3cd620e8
+# NoSource1-md5:	f7749c695dd3737734a9f26e8c69ff63
 Source2:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
 # NoSource2-md5:	b3ce457f5b9ae8b606fd70f56084877d
 Source3:	%{name}.init

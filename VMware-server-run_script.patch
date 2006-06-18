@@ -164,15 +164,15 @@
  
  if [ "vmware" = "vmware-console" ]; then
     vmware_config_name="vmware-config-console"
---- vmware-distrib/vmware-console-distrib/bin/vmware-console~	2006-03-01 21:07:14.275705656 +0100
-+++ vmware-distrib/vmware-console-distrib/bin/vmware-console	2006-03-01 21:08:49.076293776 +0100
+--- vmware-distrib/vmware-server-console-distrib/bin/vmware-server-console~	2006-03-01 21:07:14.275705656 +0100
++++ vmware-distrib/vmware-server-console-distrib/bin/vmware-server-console	2006-03-01 21:08:49.076293776 +0100
 @@ -8,173 +8,18 @@
  # the VMware software is installed. --hpreg
  #
  
 -# BEGINNING_OF_DB_DOT_SH
 -#!/bin/sh
-+. /etc/vmware-console/locations
++. /etc/vmware-server-console/locations
  
 -#
 -# Manage an installer database
@@ -326,14 +326,14 @@
 -}
 -# END_OF_DB_DOT_SH
 -
--db_load 'vm_db' '/etc/vmware-console/locations'
+-db_load 'vm_db' '/etc/vmware-server-console/locations'
 -
--if [ -e '/etc/vmware-console/not_configured' ]; then
-+if [ -e '/etc/vmware-console/not_configured' ]; then
-    echo 'vmware-console is installed, but it has not been (correctly) configured'
+-if [ -e '/etc/vmware-server-console/not_configured' ]; then
++if [ -e '/etc/vmware-server-console/not_configured' ]; then
+    echo 'vmware-server-console is installed, but it has not been (correctly) configured'
     echo 'for this system. To (re-)configure it, invoke the following command:'
--   echo "$vm_db_answer_BINDIR"'/vmware-config-console.pl.'
-+   echo "$VM_BINDIR"'/vmware-config-console.pl.'
+-   echo "$vm_db_answer_BINDIR"'/vmware-config-server-console.pl.'
++   echo "$VM_BINDIR"'/vmware-config-server-console.pl.'
     echo
  
     exit 1
@@ -341,9 +341,9 @@
                                                                         
 -exec "$vm_db_answer_LIBDIR"'/lib/wrapper-gtk24.sh' \
 -     "$vm_db_answer_LIBDIR"'/lib' \
--     "$vm_db_answer_LIBDIR"'/bin/vmware-console' \
+-     "$vm_db_answer_LIBDIR"'/bin/vmware-server-console' \
 -     "$vm_db_answer_LIBDIR"'/libconf' "$@"
 +exec "$VM_LIBDIR"'/lib/wrapper-gtk24.sh' \
 +     "$VM_LIBDIR"'/lib' \
-+     "$VM_LIBDIR"'/bin/vmware-console' \
++     "$VM_LIBDIR"'/bin/vmware-server-console' \
 +     "$VM_LIBDIR"'/libconf' "$@"

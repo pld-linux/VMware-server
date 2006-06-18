@@ -442,12 +442,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %if %{with userspace}
 install -d \
-	$RPM_BUILD_ROOT%{_sysconfdir}/vmware{,-console} \
+	$RPM_BUILD_ROOT%{_sysconfdir}/vmware{,-server-console} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/{nat,dhcpd} \
 	$RPM_BUILD_ROOT%{_bindir} \
 	$RPM_BUILD_ROOT%{_sbindir} \
-	$RPM_BUILD_ROOT%{_libdir}/vmware-{server,console}/bin \
-	$RPM_BUILD_ROOT%{_libdir}/vmware-console/bin \
+	$RPM_BUILD_ROOT%{_libdir}/vmware-{server,server-console}/bin \
 	$RPM_BUILD_ROOT%{_mandir} \
 	$RPM_BUILD_ROOT%{_pixmapsdir} \
 	$RPM_BUILD_ROOT%{_desktopdir} \
@@ -514,12 +513,12 @@ install lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware-server/bin
 cp -r	lib/{bin-debug,config,help*,isoimages,licenses,messages,xkeymap,share} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware-server
 
-cp -r	vmware-console-distrib/lib/{bin-debug,config,help*,messages,xkeymap,share} \
-	$RPM_BUILD_ROOT%{_libdir}/vmware-console
+cp -r	vmware-server-console-distrib/lib/{bin-debug,config,help*,messages,xkeymap,share} \
+	$RPM_BUILD_ROOT%{_libdir}/vmware-server-console
 
-install vmware-console-distrib/lib/bin/vmware-remotemks $RPM_BUILD_ROOT%{_libdir}/vmware-console/bin
+install vmware-server-console-distrib/lib/bin/vmware-remotemks $RPM_BUILD_ROOT%{_libdir}/vmware-server-console/bin
 
-cp -r	vmware-console-distrib/man/* man/* $RPM_BUILD_ROOT%{_mandir}
+cp -r	vmware-server-console-distrib/man/* man/* $RPM_BUILD_ROOT%{_mandir}
 gunzip	$RPM_BUILD_ROOT%{_mandir}/man?/*.gz
 
 cat > $RPM_BUILD_ROOT%{_sysconfdir}/vmware/locations <<EOF
@@ -527,9 +526,9 @@ VM_BINDIR=%{_bindir}
 VM_LIBDIR=%{_libdir}/vmware-server
 EOF
 
-cat > $RPM_BUILD_ROOT%{_sysconfdir}/vmware-console/locations <<EOF
+cat > $RPM_BUILD_ROOT%{_sysconfdir}/vmware-server-console/locations <<EOF
 VM_BINDIR=%{_bindir}
-VM_LIBDIR=%{_libdir}/vmware-console
+VM_LIBDIR=%{_libdir}/vmware-server-console
 EOF
 
 %if %{with internal_libs}
@@ -537,12 +536,12 @@ install bin/vmware $RPM_BUILD_ROOT%{_bindir}
 install lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware-server/bin
 cp -r	lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware-server
 
-install vmware-console-distrib/bin/vmware-console $RPM_BUILD_ROOT%{_bindir}
-install vmware-console-distrib/lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware-console/bin
-cp -r	vmware-console-distrib/lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware-console
+install vmware-server-console-distrib/bin/vmware-server-console $RPM_BUILD_ROOT%{_bindir}
+install vmware-server-console-distrib/lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware-server-console/bin
+cp -r	vmware-server-console-distrib/lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware-server-console
 %else
 install lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
-install vmware-console-distrib/lib/bin/vmware-console $RPM_BUILD_ROOT%{_bindir}
+install vmware-server-console-distrib/lib/bin/vmware-server-console $RPM_BUILD_ROOT%{_bindir}
 %endif
 %endif
 
@@ -648,37 +647,37 @@ fi
 
 %files console
 %defattr(644,root,root,755)
-%dir %{_sysconfdir}/vmware-console
-%{_sysconfdir}/vmware-console/locations
-%attr(755,root,root) %{_bindir}/vmware-console
-%dir %{_libdir}/vmware-console
-%dir %{_libdir}/vmware-console/bin
-%attr(755,root,root) %{_libdir}/vmware-console/bin/vmware-remotemks
-%{_libdir}/vmware-console/config
+%dir %{_sysconfdir}/vmware-server-console
+%{_sysconfdir}/vmware-server-console/locations
+%attr(755,root,root) %{_bindir}/vmware-server-console
+%dir %{_libdir}/vmware-server-console
+%dir %{_libdir}/vmware-server-console/bin
+%attr(755,root,root) %{_libdir}/vmware-server-console/bin/vmware-remotemks
+%{_libdir}/vmware-server-console/config
 %if %{with internal_libs}
-%attr(755,root,root) %{_libdir}/vmware-console/bin/vmware
-%{_libdir}/vmware-console/lib
-%attr(755,root,root) %{_libdir}/vmware-console/lib/wrapper-gtk24.sh
+%attr(755,root,root) %{_libdir}/vmware-server-console/bin/vmware
+%{_libdir}/vmware-server-console/lib
+%attr(755,root,root) %{_libdir}/vmware-server-console/lib/wrapper-gtk24.sh
 %endif
-%dir %{_libdir}/vmware-console/messages
-#%{_libdir}/vmware-console/messages/en
-%lang(ja) %{_libdir}/vmware-console/messages/ja
-%{_libdir}/vmware-console/share
-%{_libdir}/vmware-console/xkeymap
-%{_mandir}/man1/vmware-console.1*
+%dir %{_libdir}/vmware-server-console/messages
+#%{_libdir}/vmware-server-console/messages/en
+%lang(ja) %{_libdir}/vmware-server-console/messages/ja
+%{_libdir}/vmware-server-console/share
+%{_libdir}/vmware-server-console/xkeymap
+%{_mandir}/man1/vmware-server-console.1*
 
 %files console-help
 %defattr(644,root,root,755)
-%{_libdir}/vmware-console/help*
+%{_libdir}/vmware-server-console/help*
 
 %files debug
 %defattr(644,root,root,755)
 %dir %{_libdir}/vmware-server/bin-debug
 # warning: SUID !!!
 %attr(4755,root,root) %{_libdir}/vmware-server/bin-debug/vmware-vmx
-%dir %{_libdir}/vmware-console/bin-debug
+%dir %{_libdir}/vmware-server-console/bin-debug
 %attr(755,root,root) %{_libdir}/vmware-server/bin-debug/vmware-remotemks
-%attr(755,root,root) %{_libdir}/vmware-console/bin-debug/vmware-remotemks
+%attr(755,root,root) %{_libdir}/vmware-server-console/bin-debug/vmware-remotemks
 
 %files help
 %defattr(644,root,root,755)

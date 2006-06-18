@@ -315,7 +315,7 @@ Modu³y j±dra SMP dla VMware Server - vmnet-smp.
 
 %prep
 %setup -q -n vmware-server-distrib -a1 -a2
-tar zxf vmware-mui-distrib/console-distrib/VMware-console-%{_ver}-%{_build}.tar.gz
+tar zxf vmware-mui-distrib/console-distrib/%{name}-console-%{_ver}-%{_build}.tar.gz
 #cd vmware-any-any-update%{_urel}
 cd lib/modules/source
 tar xf vmmon.tar

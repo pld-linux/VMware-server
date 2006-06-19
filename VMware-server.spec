@@ -446,12 +446,12 @@ install -d \
 	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/{nat,dhcpd} \
 	$RPM_BUILD_ROOT%{_bindir} \
 	$RPM_BUILD_ROOT%{_sbindir} \
-	$RPM_BUILD_ROOT%{_libdir}/vmware-{server,server-console}/bin \
+	$RPM_BUILD_ROOT%{_libdir}/vmware{,-server-console}/bin \
 	$RPM_BUILD_ROOT%{_mandir} \
 	$RPM_BUILD_ROOT%{_pixmapsdir} \
 	$RPM_BUILD_ROOT%{_desktopdir} \
 	$RPM_BUILD_ROOT/etc/rc.d/init.d \
-	$RPM_BUILD_ROOT/var/run/vmware
+	$RPM_BUILD_ROOT/var/{log,run}/vmware
 
 	cd control-only
 	%{__make} install \
@@ -507,24 +507,19 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases~
 
 install bin/*-* $RPM_BUILD_ROOT%{_bindir}
 install sbin/*-* $RPM_BUILD_ROOT%{_sbindir}
-install lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware-server/bin
+install lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware/bin
 
 #cp -r	lib/{bin-debug,config,help*,isoimages,licenses,messages,smb,xkeymap} \
-cp -r	lib/{bin-debug,config,help*,isoimages,licenses,messages,xkeymap,share} \
-	$RPM_BUILD_ROOT%{_libdir}/vmware-server
+cp -r	lib/{bin-debug,config,help*,isoimages,licenses,messages,share,xkeymap} \
+	$RPM_BUILD_ROOT%{_libdir}/vmware
 
-cp -r	vmware-server-console-distrib/lib/{bin-debug,config,help*,messages,xkeymap,share} \
+cp -r	vmware-server-console-distrib/lib/{bin-debug,config,help*,messages,share,xkeymap} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware-server-console
 
 install vmware-server-console-distrib/lib/bin/vmware-remotemks $RPM_BUILD_ROOT%{_libdir}/vmware-server-console/bin
 
 cp -r	vmware-server-console-distrib/man/* man/* $RPM_BUILD_ROOT%{_mandir}
 gunzip	$RPM_BUILD_ROOT%{_mandir}/man?/*.gz
-
-cat > $RPM_BUILD_ROOT%{_sysconfdir}/vmware/locations <<EOF
-VM_BINDIR=%{_bindir}
-VM_LIBDIR=%{_libdir}/vmware-server
-EOF
 
 cat > $RPM_BUILD_ROOT%{_sysconfdir}/vmware-server-console/locations <<EOF
 VM_BINDIR=%{_bindir}
@@ -533,8 +528,8 @@ EOF
 
 %if %{with internal_libs}
 install bin/vmware $RPM_BUILD_ROOT%{_bindir}
-install lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware-server/bin
-cp -r	lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware-server
+install lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware/bin
+cp -r	lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware
 
 install vmware-server-console-distrib/bin/vmware-server-console $RPM_BUILD_ROOT%{_bindir}
 install vmware-server-console-distrib/lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware-server-console/bin
@@ -611,7 +606,6 @@ fi
 %defattr(644,root,root,755)
 %doc doc/* lib/configurator/vmnet-{dhcpd,nat}.conf
 %dir %{_sysconfdir}/vmware
-%{_sysconfdir}/vmware/locations
 %attr(755,root,root) %{_bindir}/vm-support
 %attr(755,root,root) %{_bindir}/vmware-authtrusted
 %attr(755,root,root) %{_bindir}/vmware-cmd
@@ -620,28 +614,29 @@ fi
 %attr(755,root,root) %{_bindir}/vmware-mount.pl
 %attr(755,root,root) %{_bindir}/vmware-vdiskmanager
 %attr(755,root,root) %{_sbindir}/*
-%dir %{_libdir}/vmware-server
-%dir %{_libdir}/vmware-server/bin
+%dir %{_libdir}/vmware
+%dir %{_libdir}/vmware/bin
 # warning: SUID !!!
-%attr(4755,root,root) %{_libdir}/vmware-server/bin/vmware-vmx
-%{_libdir}/vmware-server/config
-%{_libdir}/vmware-server/isoimages
+%attr(4755,root,root) %{_libdir}/vmware/bin/vmware-vmx
+%{_libdir}/vmware/config
+%{_libdir}/vmware/isoimages
 %if %{with internal_libs}
-%attr(755,root,root) %{_libdir}/vmware-server/bin/vmware
-%{_libdir}/vmware-server/lib
-%attr(755,root,root) %{_libdir}/vmware-server/lib/wrapper-gtk24.sh
+%attr(755,root,root) %{_libdir}/vmware/bin/vmware
+%{_libdir}/vmware/lib
+%attr(755,root,root) %{_libdir}/vmware/lib/wrapper-gtk24.sh
 %endif
-%{_libdir}/vmware-server/licenses
-%dir %{_libdir}/vmware-server/messages
-%{_libdir}/vmware-server/messages/en
-%lang(ja) %{_libdir}/vmware-server/messages/ja
-%{_libdir}/vmware-server/share
-%{_libdir}/vmware-server/xkeymap
+%{_libdir}/vmware/licenses
+%dir %{_libdir}/vmware/messages
+%{_libdir}/vmware/messages/en
+%lang(ja) %{_libdir}/vmware/messages/ja
+%{_libdir}/vmware/share
+%{_libdir}/vmware/xkeymap
 %{_mandir}/man1/vmware.1*
 %{_mandir}/man3/*
 %{perl_vendorarch}/VMware
 %{perl_vendorarch}/auto/VMware
 %attr(1777,root,root) %dir /var/run/vmware
+%attr(751,root,root) %dir /var/log/vmware
 %{_pixmapsdir}/*.png
 %{_desktopdir}/%{name}.desktop
 
@@ -672,16 +667,16 @@ fi
 
 %files debug
 %defattr(644,root,root,755)
-%dir %{_libdir}/vmware-server/bin-debug
+%dir %{_libdir}/vmware/bin-debug
 # warning: SUID !!!
-%attr(4755,root,root) %{_libdir}/vmware-server/bin-debug/vmware-vmx
+%attr(4755,root,root) %{_libdir}/vmware/bin-debug/vmware-vmx
 %dir %{_libdir}/vmware-server-console/bin-debug
-%attr(755,root,root) %{_libdir}/vmware-server/bin-debug/vmware-remotemks
+%attr(755,root,root) %{_libdir}/vmware/bin-debug/vmware-remotemks
 %attr(755,root,root) %{_libdir}/vmware-server-console/bin-debug/vmware-remotemks
 
 %files help
 %defattr(644,root,root,755)
-%{_libdir}/vmware-server/help*
+%{_libdir}/vmware/help*
 
 %files networking
 %defattr(644,root,root,755)

@@ -56,6 +56,7 @@ Source7:	%{name}-nat.conf
 Source8:	%{name}-dhcpd.conf
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-run_script.patch
+Patch2:		%{name}-init_pl.patch
 NoSource:	0
 NoSource:	1
 NoSource:	2
@@ -325,6 +326,7 @@ cp -a vmmon-only{,.clean}
 cp -a vmnet-only{,.clean}
 cd -
 %patch1 -p1
+%patch2 -p0
 tar xf lib/perl/control.tar
 
 %build
@@ -447,6 +449,7 @@ install -d \
 	$RPM_BUILD_ROOT%{_bindir} \
 	$RPM_BUILD_ROOT%{_sbindir} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware{,-server-console}/bin \
+	$RPM_BUILD_ROOT%{_libdir}/vmware/serverd \
 	$RPM_BUILD_ROOT%{_mandir} \
 	$RPM_BUILD_ROOT%{_pixmapsdir} \
 	$RPM_BUILD_ROOT%{_desktopdir} \
@@ -457,6 +460,15 @@ install -d \
 	%{__make} install \
 		DESTDIR=$RPM_BUILD_ROOT
 	cd ..
+
+	# copy other required perl modules
+	cp -r lib/perl5/site_perl/5.005/VMware $RPM_BUILD_ROOT%{perl_vendorarch}
+	cp -r lib/perl5/site_perl/5.005/i386-linux/VMware/VmdbPerl $RPM_BUILD_ROOT%{perl_vendorarch}/VMware
+	cp -r lib/perl5/site_perl/5.005/i386-linux/VMware/{HConfig,VmdbPerl}.pm $RPM_BUILD_ROOT%{perl_vendorarch}/VMware
+	cp -r lib/perl5/site_perl/5.005/i386-linux/auto/VMware/{HConfig,VmdbPerl} $RPM_BUILD_ROOT%{perl_vendorarch}/auto/VMware
+
+	# remove unecessary files
+	rm -f $RPM_BUILD_ROOT%{perl_vendorarch}/auto/VMware/{HConfig,VmdbPerl,VmPerl}/.{exists,packlist}
 %endif
 
 %if %{with kernel}
@@ -508,6 +520,8 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases~
 install bin/*-* $RPM_BUILD_ROOT%{_bindir}
 install sbin/*-* $RPM_BUILD_ROOT%{_sbindir}
 install lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware/bin
+
+sed -e ' s@%sitearch%@%{perl_sitearch}@g; s@%sitelib%@%{perl_sitelib}@g; s@%vendorarch%@%{perl_vendorarch}@g; s@%vendorlib%@%{perl_vendorlib}@g; s@%archlib%@%{perl_archlib}@g; s@%privlib%@%{perl_privlib}@g;' < lib/serverd/init.pl.default > $RPM_BUILD_ROOT%{_libdir}/vmware/serverd/init.pl
 
 #cp -r	lib/{bin-debug,config,help*,isoimages,licenses,messages,smb,xkeymap} \
 cp -r	lib/{bin-debug,config,help*,isoimages,licenses,messages,share,xkeymap} \
@@ -625,6 +639,8 @@ fi
 %{_libdir}/vmware/lib
 %attr(755,root,root) %{_libdir}/vmware/lib/wrapper-gtk24.sh
 %endif
+%dir %{_libdir}/vmware/serverd
+%attr(750,root,root) %{_libdir}/vmware/serverd/init.pl
 %{_libdir}/vmware/licenses
 %dir %{_libdir}/vmware/messages
 %{_libdir}/vmware/messages/en

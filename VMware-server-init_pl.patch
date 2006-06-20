@@ -1,0 +1,35 @@
+--- lib/serverd/init.pl.default	2006-04-25 23:59:55.000000000 +0200
++++ lib/serverd/init.pl.default	2006-06-20 13:37:46.465591250 +0200
+@@ -19,26 +19,15 @@
+ BEGIN {
+   $ENV{vmware_VMSERVERD} = 1;
+   $ENV{vmware_PROFILE} = 0;
+-  if ( $^O eq "MSWin32" ) {
+-      $PLATFORM = "MSWin32-x86";
+-  } else {
+-      $PLATFORM = "i386-linux";
+-  }
+-
+-  if( -d '%debugdir%' ) {
+-      $PREFIX_PATH = '%debugdir%';
+-  } else {
+-      $PREFIX_PATH = '%libdir%';
+-  }
+ 
+-  @INC = ("$PREFIX_PATH/perl5/site_perl/5.005",
+-	  "$PREFIX_PATH/perl5/site_perl/5.005/$PLATFORM",
++  @INC = ("%sitearch%",
++	  "%sitelib%",
++	  "%vendorarch%",
++	  "%vendorlib%",
++	  "%archlib%",
++	  "%privlib%",
+ 	  '.'
+ 	  );
+-
+-  if ( $^O eq "MSWin32" ) {
+-      $ENV{PATH} = "$PREFIX_PATH;" . $ENV{PATH};
+-  }
+ }
+ 
+ #############################################################

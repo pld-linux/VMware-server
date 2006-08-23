@@ -32,7 +32,7 @@
 %define		_ver	1.0.0
 %define		_build	28343
 %define		_rel	0.1
-%define		_urel	103
+%define		_urel	104
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
 Summary:	VMware Server
@@ -43,10 +43,13 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/vmserver/%{name}-%{_ver}-%{_build}.tar.gz
+# Source0-md5:	a25b4beb53785c05ef3b3077d87f6e2b
 # NoSource0-md5:	a25b4beb53785c05ef3b3077d87f6e2b
 Source1:	http://download3.vmware.com/software/vmserver/VMware-mui-%{_ver}-%{_build}.tar.gz
+# Source1-md5:	0de45c02fcaa30ac41517b687f34b29b
 # NoSource1-md5:	0de45c02fcaa30ac41517b687f34b29b
 Source2:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
+# Source2-md5:	8cba16d3f6b3723b43d555a5f7cbf850
 # NoSource2-md5:	2e4ac50579cc56ca1303e7dfc156021d
 Source3:	%{name}.init
 Source4:	%{name}-vmnet.conf

@@ -66,8 +66,9 @@ BuildRequires:	gcc-c++
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRequires:	sed >= 4.0
-Requires:	kernel(vmmon) = %{version}-%{_rel}
 Requires:	libgnomecanvasmm
+Conflicts:	kernel(vmmon) < %{version}-%{_rel}
+Conflicts:	kernel(vmmon) > %{version}-%{_rel}
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -141,8 +142,9 @@ Summary(pl):	Narzêdzia VMware do obs³ugi sieci
 Group:		Applications/Emulators
 Requires(post,preun):	/sbin/chkconfig
 #Requires:	%{name} = %{version}-%{release}
-Requires:	kernel(vmnet) = %{version}-%{_rel}
 Requires:	rc-scripts
+Conflicts:	kernel(vmnet) < %{version}-%{_rel}
+Conflicts:	kernel(vmnet) > %{version}-%{_rel}
 
 %description networking
 VMware networking utilities.

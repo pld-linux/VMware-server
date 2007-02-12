@@ -36,7 +36,7 @@
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
 Summary:	VMware Server
-Summary(pl):	VMware Server - wirtualna platforma dla stacji roboczej
+Summary(pl.UTF-8):   VMware Server - wirtualna platforma dla stacji roboczej
 Name:		VMware-server
 Version:	%{_ver}.%{_build}
 Release:	%{_rel}
@@ -78,39 +78,39 @@ multiple guest operating systems to run concurrently on a single
 standard PC, without repartitioning or rebooting, and without
 significant loss of performance.
 
-%description -l pl
+%description -l pl.UTF-8
 VMware Server Virtual Platform to cienka warstwa oprogramowania
-pozwalaj±ca na jednoczesne dzia³anie wielu go¶cinnych systemów
-operacyjnych na jednym zwyk³ym PC, bez repartycjonowania ani
-rebootowania, bez znacznej utraty wydajno¶ci.
+pozwalajÄ…ca na jednoczesne dziaÅ‚anie wielu goÅ›cinnych systemÃ³w
+operacyjnych na jednym zwykÅ‚ym PC, bez repartycjonowania ani
+rebootowania, bez znacznej utraty wydajnoÅ›ci.
 
 %package debug
 Summary:	VMware debug utility
-Summary(pl):	Narzêdzie VMware do odpluskwiania
+Summary(pl.UTF-8):   NarzÄ™dzie VMware do odpluskwiania
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
 %description debug
 VMware debug utility.
 
-%description debug -l pl
-Narzêdzie VMware do odpluskwiania.
+%description debug -l pl.UTF-8
+NarzÄ™dzie VMware do odpluskwiania.
 
 %package console
 Summary:	VMware console utility
-Summary(pl):	Konsola VMware
+Summary(pl.UTF-8):   Konsola VMware
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
 %description console
 A tool for controlling VM.
 
-%description console -l pl
-Narzêdzie VMware do kontroli VM.
+%description console -l pl.UTF-8
+NarzÄ™dzie VMware do kontroli VM.
 
 %package help
 Summary:	VMware Server help files
-Summary(pl):	Pliki pomocy dla VMware Server
+Summary(pl.UTF-8):   Pliki pomocy dla VMware Server
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 Requires:	mozilla
@@ -118,12 +118,12 @@ Requires:	mozilla
 %description help
 VMware Server help files.
 
-%description help -l pl
+%description help -l pl.UTF-8
 Pliki pomocy dla VMware Server.
 
 %package console-help
 Summary:	VMware Server console help files
-Summary(pl):	Pliki pomocy dla konsoli VMware Server
+Summary(pl.UTF-8):   Pliki pomocy dla konsoli VMware Server
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 Requires:	mozilla
@@ -131,12 +131,12 @@ Requires:	mozilla
 %description console-help
 VMware Server console help files.
 
-%description console-help -l pl
+%description console-help -l pl.UTF-8
 Pliki pomocy dla konsoli VMware Server.
 
 %package networking
 Summary:	VMware networking utilities
-Summary(pl):	Narzêdzia VMware do obs³ugi sieci
+Summary(pl.UTF-8):   NarzÄ™dzia VMware do obsÅ‚ugi sieci
 Group:		Applications/Emulators
 Requires(post,preun):	/sbin/chkconfig
 #Requires:	%{name} = %{version}-%{release}
@@ -145,24 +145,24 @@ Requires:	rc-scripts
 %description networking
 VMware networking utilities.
 
-%description networking -l pl
-Narzêdzia VMware do obs³ugi sieci.
+%description networking -l pl.UTF-8
+NarzÄ™dzia VMware do obsÅ‚ugi sieci.
 
 %package samba
 Summary:	VMware SMB utilities
-Summary(pl):	Narzêdzia VMware do SMB
+Summary(pl.UTF-8):   NarzÄ™dzia VMware do SMB
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
 %description samba
 VMware SMB utilities.
 
-%description samba -l pl
-Narzêdzia VMware do SMB.
+%description samba -l pl.UTF-8
+NarzÄ™dzia VMware do SMB.
 
 %package -n kernel-misc-vmmon
 Summary:	Kernel module for VMware Server
-Summary(pl):	Modu³ j±dra dla VMware Server
+Summary(pl.UTF-8):   ModuÅ‚ jÄ…dra dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -176,12 +176,12 @@ Provides:	kernel(vmmon) = %{version}-%{_rel}
 %description -n kernel-misc-vmmon
 Kernel modules for VMware Server - vmmon.
 
-%description -n kernel-misc-vmmon -l pl
-Modu³y j±dra dla VMware Server - vmmon.
+%description -n kernel-misc-vmmon -l pl.UTF-8
+ModuÅ‚y jÄ…dra dla VMware Server - vmmon.
 
 %package -n kernel-misc-vmnet
 Summary:	Kernel module for VMware Server
-Summary(pl):	Modu³ j±dra dla VMware Server
+Summary(pl.UTF-8):   ModuÅ‚ jÄ…dra dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -195,12 +195,12 @@ Provides:	kernel(vmnet) = %{version}-%{_rel}
 %description -n kernel-misc-vmnet
 Kernel modules for VMware Server - vmnet.
 
-%description -n kernel-misc-vmnet -l pl
-Modu³y j±dra dla VMware Server - vmnet.
+%description -n kernel-misc-vmnet -l pl.UTF-8
+ModuÅ‚y jÄ…dra dla VMware Server - vmnet.
 
 %package -n kernel-smp-misc-vmmon
 Summary:	SMP kernel module for VMware Server
-Summary(pl):	Modu³ j±dra SMP dla VMware Server
+Summary(pl.UTF-8):   ModuÅ‚ jÄ…dra SMP dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -214,12 +214,12 @@ Provides:	kernel(vmmon) = %{version}-%{_rel}
 %description -n kernel-smp-misc-vmmon
 SMP kernel modules fov VMware Server - vmmon-smp.
 
-%description -n kernel-smp-misc-vmmon -l pl
-Modu³y j±dra SMP dla VMware Server - vmmon-smp.
+%description -n kernel-smp-misc-vmmon -l pl.UTF-8
+ModuÅ‚y jÄ…dra SMP dla VMware Server - vmmon-smp.
 
 %package -n kernel-smp-misc-vmnet
 Summary:	SMP kernel module for VMware Server
-Summary(pl):	Modu³ j±dra SMP dla VMware Server
+Summary(pl.UTF-8):   ModuÅ‚ jÄ…dra SMP dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -233,12 +233,12 @@ Provides:	kernel(vmnet) = %{version}-%{_rel}
 %description -n kernel-smp-misc-vmnet
 SMP kernel module for VMware Server - vmnet-smp.
 
-%description -n kernel-smp-misc-vmnet -l pl
-Modu³y j±dra SMP dla VMware Server - vmnet-smp.
+%description -n kernel-smp-misc-vmnet -l pl.UTF-8
+ModuÅ‚y jÄ…dra SMP dla VMware Server - vmnet-smp.
 
 %package -n kernel24-misc-vmmon
 Summary:	Kernel module for VMware Server
-Summary(pl):	Modu³ j±dra dla VMware Server
+Summary(pl.UTF-8):   ModuÅ‚ jÄ…dra dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -252,12 +252,12 @@ Provides:	kernel(vmmon) = %{version}-%{_rel}
 %description -n kernel24-misc-vmmon
 Kernel modules for VMware Server - vmmon.
 
-%description -n kernel24-misc-vmmon -l pl
-Modu³y j±dra dla VMware Server - vmmon.
+%description -n kernel24-misc-vmmon -l pl.UTF-8
+ModuÅ‚y jÄ…dra dla VMware Server - vmmon.
 
 %package -n kernel24-misc-vmnet
 Summary:	Kernel module for VMware Server
-Summary(pl):	Modu³ j±dra dla VMware Server
+Summary(pl.UTF-8):   ModuÅ‚ jÄ…dra dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -271,12 +271,12 @@ Provides:	kernel(vmnet) = %{version}-%{_rel}
 %description -n kernel24-misc-vmnet
 Kernel modules for VMware Server - vmnet.
 
-%description -n kernel24-misc-vmnet -l pl
-Modu³y j±dra dla VMware Server - vmnet.
+%description -n kernel24-misc-vmnet -l pl.UTF-8
+ModuÅ‚y jÄ…dra dla VMware Server - vmnet.
 
 %package -n kernel24-smp-misc-vmmon
 Summary:	SMP kernel module for VMware Server
-Summary(pl):	Modu³ j±dra SMP dla VMware Server
+Summary(pl.UTF-8):   ModuÅ‚ jÄ…dra SMP dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -290,12 +290,12 @@ Provides:	kernel(vmmon) = %{version}-%{_rel}
 %description -n kernel24-smp-misc-vmmon
 SMP kernel modules fov VMware Server - vmmon-smp.
 
-%description -n kernel24-smp-misc-vmmon -l pl
-Modu³y j±dra SMP dla VMware Server - vmmon-smp.
+%description -n kernel24-smp-misc-vmmon -l pl.UTF-8
+ModuÅ‚y jÄ…dra SMP dla VMware Server - vmmon-smp.
 
 %package -n kernel24-smp-misc-vmnet
 Summary:	SMP kernel module for VMware Server
-Summary(pl):	Modu³ j±dra SMP dla VMware Server
+Summary(pl.UTF-8):   ModuÅ‚ jÄ…dra SMP dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -309,8 +309,8 @@ Provides:	kernel(vmnet) = %{version}-%{_rel}
 %description -n kernel24-smp-misc-vmnet
 SMP kernel module for VMware Server - vmnet-smp.
 
-%description -n kernel24-smp-misc-vmnet -l pl
-Modu³y j±dra SMP dla VMware Server - vmnet-smp.
+%description -n kernel24-smp-misc-vmnet -l pl.UTF-8
+ModuÅ‚y jÄ…dra SMP dla VMware Server - vmnet-smp.
 
 %prep
 %setup -q -n vmware-server-distrib -a1 -a2

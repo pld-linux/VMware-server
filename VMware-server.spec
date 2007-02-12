@@ -36,7 +36,7 @@
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
 Summary:	VMware Server
-Summary(pl.UTF-8):   VMware Server - wirtualna platforma dla stacji roboczej
+Summary(pl.UTF-8):	VMware Server - wirtualna platforma dla stacji roboczej
 Name:		VMware-server
 Version:	%{_ver}.%{_build}
 Release:	%{_rel}
@@ -86,7 +86,7 @@ rebootowania, bez znacznej utraty wydajności.
 
 %package debug
 Summary:	VMware debug utility
-Summary(pl.UTF-8):   Narzędzie VMware do odpluskwiania
+Summary(pl.UTF-8):	Narzędzie VMware do odpluskwiania
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
@@ -98,7 +98,7 @@ Narzędzie VMware do odpluskwiania.
 
 %package console
 Summary:	VMware console utility
-Summary(pl.UTF-8):   Konsola VMware
+Summary(pl.UTF-8):	Konsola VMware
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
@@ -110,7 +110,7 @@ Narzędzie VMware do kontroli VM.
 
 %package help
 Summary:	VMware Server help files
-Summary(pl.UTF-8):   Pliki pomocy dla VMware Server
+Summary(pl.UTF-8):	Pliki pomocy dla VMware Server
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 Requires:	mozilla
@@ -123,7 +123,7 @@ Pliki pomocy dla VMware Server.
 
 %package console-help
 Summary:	VMware Server console help files
-Summary(pl.UTF-8):   Pliki pomocy dla konsoli VMware Server
+Summary(pl.UTF-8):	Pliki pomocy dla konsoli VMware Server
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 Requires:	mozilla
@@ -136,7 +136,7 @@ Pliki pomocy dla konsoli VMware Server.
 
 %package networking
 Summary:	VMware networking utilities
-Summary(pl.UTF-8):   Narzędzia VMware do obsługi sieci
+Summary(pl.UTF-8):	Narzędzia VMware do obsługi sieci
 Group:		Applications/Emulators
 Requires(post,preun):	/sbin/chkconfig
 #Requires:	%{name} = %{version}-%{release}
@@ -150,7 +150,7 @@ Narzędzia VMware do obsługi sieci.
 
 %package samba
 Summary:	VMware SMB utilities
-Summary(pl.UTF-8):   Narzędzia VMware do SMB
+Summary(pl.UTF-8):	Narzędzia VMware do SMB
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
@@ -162,7 +162,7 @@ Narzędzia VMware do SMB.
 
 %package -n kernel-misc-vmmon
 Summary:	Kernel module for VMware Server
-Summary(pl.UTF-8):   Moduł jądra dla VMware Server
+Summary(pl.UTF-8):	Moduł jądra dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -181,7 +181,7 @@ Moduły jądra dla VMware Server - vmmon.
 
 %package -n kernel-misc-vmnet
 Summary:	Kernel module for VMware Server
-Summary(pl.UTF-8):   Moduł jądra dla VMware Server
+Summary(pl.UTF-8):	Moduł jądra dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -200,7 +200,7 @@ Moduły jądra dla VMware Server - vmnet.
 
 %package -n kernel-smp-misc-vmmon
 Summary:	SMP kernel module for VMware Server
-Summary(pl.UTF-8):   Moduł jądra SMP dla VMware Server
+Summary(pl.UTF-8):	Moduł jądra SMP dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -219,7 +219,7 @@ Moduły jądra SMP dla VMware Server - vmmon-smp.
 
 %package -n kernel-smp-misc-vmnet
 Summary:	SMP kernel module for VMware Server
-Summary(pl.UTF-8):   Moduł jądra SMP dla VMware Server
+Summary(pl.UTF-8):	Moduł jądra SMP dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -238,7 +238,7 @@ Moduły jądra SMP dla VMware Server - vmnet-smp.
 
 %package -n kernel24-misc-vmmon
 Summary:	Kernel module for VMware Server
-Summary(pl.UTF-8):   Moduł jądra dla VMware Server
+Summary(pl.UTF-8):	Moduł jądra dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -257,7 +257,7 @@ Moduły jądra dla VMware Server - vmmon.
 
 %package -n kernel24-misc-vmnet
 Summary:	Kernel module for VMware Server
-Summary(pl.UTF-8):   Moduł jądra dla VMware Server
+Summary(pl.UTF-8):	Moduł jądra dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -276,7 +276,7 @@ Moduły jądra dla VMware Server - vmnet.
 
 %package -n kernel24-smp-misc-vmmon
 Summary:	SMP kernel module for VMware Server
-Summary(pl.UTF-8):   Moduł jądra SMP dla VMware Server
+Summary(pl.UTF-8):	Moduł jądra SMP dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -295,7 +295,7 @@ Moduły jądra SMP dla VMware Server - vmmon-smp.
 
 %package -n kernel24-smp-misc-vmnet
 Summary:	SMP kernel module for VMware Server
-Summary(pl.UTF-8):   Moduł jądra SMP dla VMware Server
+Summary(pl.UTF-8):	Moduł jądra SMP dla VMware Server
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod

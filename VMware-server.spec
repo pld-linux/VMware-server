@@ -30,10 +30,10 @@
 %define         _kernelsrcdir		/usr/src/linux-2.4
 %endif
 #
-%define		_ver	1.0.2
-%define		_build	39867
+%define		_ver	1.0.3
+%define		_build	44356
 %define		_rel	0.1
-%define		_urel	109
+%define		_urel	110
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
 Summary:	VMware Server
@@ -44,11 +44,11 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/vmserver/%{name}-%{_ver}-%{_build}.tar.gz
-# NoSource0-md5:	6de93dc6ed281c65d295aab366fcb495
+# NoSource0-md5:	536a289e3a67cab7874fd5b12885cbf3
 Source1:	http://download3.vmware.com/software/vmserver/VMware-mui-%{_ver}-%{_build}.tar.gz
-# NoSource1-md5:	cc505b3a03a95bdf1752d2f10525fbbb
+# NoSource1-md5:	c46f8044ddd3f4c40133ad8b84e57b69
 Source2:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# NoSource2-md5:	2b65f2c3867e45a7b0674591f2ca8015
+# NoSource2-md5:	6a0c8da95b4c25670c842939e5b92728
 Source3:	%{name}.init
 Source4:	%{name}-vmnet.conf
 Source5:	%{name}.png

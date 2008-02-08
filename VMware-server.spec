@@ -24,10 +24,10 @@
 #
 %include	/usr/lib/rpm/macros.perl
 #
-%define		_ver	1.0.3
-%define		_build	44356
+%define		_ver	1.0.4
+%define		_build	56528
 %define		_rel	0.1
-%define		_urel	110
+%define		_urel	115
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
 Summary:	VMware Server
@@ -38,11 +38,11 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/vmserver/%{name}-%{_ver}-%{_build}.tar.gz
-# NoSource0-md5:	536a289e3a67cab7874fd5b12885cbf3
+# NoSource0-md5:	60ec55cd66b77fb202d88bee79baebdf
 Source1:	http://download3.vmware.com/software/vmserver/VMware-mui-%{_ver}-%{_build}.tar.gz
-# NoSource1-md5:	c46f8044ddd3f4c40133ad8b84e57b69
+# NoSource1-md5:	6b13063d8ea83c2280549d33da92c476
 Source2:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# NoSource2-md5:	6a0c8da95b4c25670c842939e5b92728
+# NoSource2-md5:	ab33ff7a799fee77f0f4ba5667cd4b9a
 Source3:	%{name}.init
 Source4:	%{name}-vmnet.conf
 Source5:	%{name}.png

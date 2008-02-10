@@ -13,7 +13,10 @@
 # But hey, it's at least free ;-)
 #
 # I probably won't have time to work on this, switching to vmware-player.
-#
+# TODO:
+# problem with libsexy/libsexymm:
+# ln -s /usr/lib/libsexy.so.2 /usr/lib/libsexy.so.1
+# ln -s /usr/lib/libsexymm.so.2 /usr/lib/libsexymm.so.1
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
@@ -62,6 +65,8 @@ BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.379
 BuildRequires:	sed >= 4.0
 Requires:	libgnomecanvasmm
+Requires:	libsexy
+Requires	libsexymm
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -490,7 +495,9 @@ fi
 %attr(755,root,root) %{_bindir}/vmnet-sniffer
 %attr(755,root,root) %{_bindir}/vmware-ping
 %dir %{_sysconfdir}/vmware/vmnet8
+%dir %{_sysconfdir}/vmware/vmnet8/dhcpd
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
+%dir %{_sysconfdir}/vmware/vmnet8/nat
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/nat/nat.conf
 %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases*
 

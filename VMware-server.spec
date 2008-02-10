@@ -66,7 +66,7 @@ BuildRequires:	rpmbuild(macros) >= 1.379
 BuildRequires:	sed >= 4.0
 Requires:	libgnomecanvasmm
 Requires:	libsexy
-Requires	libsexymm
+Requires:	libsexymm
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 

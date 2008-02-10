@@ -29,7 +29,7 @@
 #
 %define		_ver	1.0.4
 %define		_build	56528
-%define		_rel	0.1
+%define		_rel	0.2
 %define		_urel	115
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #

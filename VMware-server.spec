@@ -206,7 +206,12 @@ Kernel modules for VMware Server - vmnet.
 Moduły jądra dla VMware Server - vmnet.
 
 %prep
-%setup -q -n vmware-server-distrib -a1 -a2
+%ifarch %{ix86}
+%setup -q -T -n vmware-server-distrib -b0 -a2
+%endif
+%ifarch %{x8664}
+%setup -q -T -n vmware-server-distrib -b1 -a3
+%endif
 tar zxf vmware-mui-distrib/console-distrib/%{name}-console-%{ver}-%{subver}.tar.gz
 cp vmware-any-any-update%{urel}/{vmmon,vmnet}.tar lib/modules/source/
 cd lib/modules/source

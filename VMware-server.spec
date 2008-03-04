@@ -21,7 +21,7 @@
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
 %bcond_without	kernel		# don't build kernel modules
-%bcond_without	userspace	# don't build userspace utilities
+%bcond_with	userspace	# don't build userspace utilities
 %bcond_with	internal_libs	# internal libs stuff
 %bcond_with	verbose		# verbose build (V=1)
 #
@@ -66,10 +66,10 @@ NoSource:	2
 NoSource:	3
 NoSource:	4
 URL:		http://www.vmware.com/
-%{?with_dist_kernel:BuildRequires:	kernel-module-build >= 3:2.6.20.2}
+%{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.20.2}
 BuildRequires:	libstdc++-devel
 BuildRequires:	rpm-perlprov
-BuildRequires:	rpmbuild(macros) >= 1.379
+BuildRequires:	rpmbuild(macros) >= 1.438
 BuildRequires:	sed >= 4.0
 Requires:	libgnomecanvasmm
 Requires:	libsexy
@@ -167,6 +167,25 @@ VMware SMB utilities.
 %description samba -l pl.UTF-8
 Narzędzia VMware do SMB.
 
+%package -n kernel-misc-vmci
+Summary:	Kernel module for VMware Server
+Summary(pl.UTF-8):	Moduł jądra dla VMware Server
+Release:	%{rel}@%{_kernel_ver_str}
+Group:		Base/Kernel
+Requires(post,postun):	/sbin/depmod
+Requires:	dev >= 2.9.0-7
+%if %{with dist_kernel}
+%requires_releq_kernel
+Requires(postun):	%releq_kernel
+%endif
+Provides:	kernel(vmci) = %{version}-%{rel}
+
+%description -n kernel-misc-vmci
+Kernel modules for VMware Server - vmci.
+
+%description -n kernel-misc-vmci -l pl.UTF-8
+Moduły jądra dla VMware Server - vmci.
+
 %package -n kernel-misc-vmmon
 Summary:	Kernel module for VMware Server
 Summary(pl.UTF-8):	Moduł jądra dla VMware Server
@@ -207,11 +226,24 @@ Moduły jądra dla VMware Server - vmnet.
 
 %prep
 %ifarch %{ix86}
-%setup -q -T -n vmware-server-distrib -b0 -a2
+%setup -q -T -n vmware-server-distrib -b0 %{?with_userspace:-a2}
 %endif
 %ifarch %{x8664}
-%setup -q -T -n vmware-server-distrib -b1 -a3
+%setup -q -T -n vmware-server-distrib -b1 %{?with_userspace:-a3}
 %endif
+
+cd lib/modules
+%{__tar} xf source/vmci.tar
+%{__tar} xf source/vmmon.tar
+%{__tar} xf source/vmnet.tar
+mv vmmon-only/linux/driver.c{,.dist}
+mv vmnet-only/hub.c{,.dist}
+mv vmnet-only/driver.c{,.dist}
+cd -
+rm -rf binary # unusable
+
+
+%if 0
 tar zxf vmware-mui-distrib/console-distrib/%{name}-console-%{ver}-%{subver}.tar.gz
 cp vmware-any-any-update%{urel}/{vmmon,vmnet}.tar lib/modules/source/
 cd lib/modules/source
@@ -224,12 +256,14 @@ cd -
 %patch1 -p1
 %patch2 -p0
 tar xf lib/perl/control.tar
+%endif
 
 %build
-sed -i 's:vm_db_answer_LIBDIR:VM_LIBDIR:g;s:vm_db_answer_BINDIR:VM_BINDIR:g' bin/vmware
 
+%if 0
 cd vmware-any-any-update%{urel}
 chmod u+w ../lib/bin/vmware-vmx ../lib/bin-debug/vmware-vmx ../bin/vmnet-bridge
+%endif
 
 %if 0
 rm -f update
@@ -237,10 +271,11 @@ rm -f update
 ./update vmx		../lib/bin/vmware-vmx
 ./update vmxdebug	../lib/bin-debug/vmware-vmx
 ./update bridge		../bin/vmnet-bridge
-%endif
 cd -
+%endif
 
 %if %{with userspace}
+%if 0
 	cd control-only
 	perl Makefile.PL
 	sed -i "s:^INSTALLSITEARCH.*$:INSTALLSITEARCH = %{perl_vendorarch}:" Makefile
@@ -251,52 +286,34 @@ cd -
 	%{__make}
 	cd ..
 %endif
+%endif
 
 %if %{with kernel}
-cd lib/modules/source
-rm -rf built
-mkdir built
+cd lib/modules
 
-for mod in vmmon vmnet ; do
-	for cfg in %{?with_dist_kernel:dist}%{!?with_dist_kernel:nondist}; do
-		if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
-			exit 1
-		fi
-		rm -rf $mod-only
-		cp -a $mod-only.clean $mod-only
-		cd $mod-only
-		install -d o/include/linux
-		ln -sf %{_kernelsrcdir}/config-$cfg o/.config
-		ln -sf %{_kernelsrcdir}/Module.symvers-$cfg o/Module.symvers
-		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h o/include/linux/autoconf.h
-	if grep -q "^CONFIG_PREEMPT_RT=y$" o/.config; then
-		sed -e '/pollQueueLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(pollQueueLock)/' \
-			-e '/timerLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(timerLock)/' \
-			-i ../vmmon-only/linux/driver.c
-		sed -e 's/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(vnetHubLock)/' \
-			-i ../vmnet-only/hub.c
-		sed -e 's/RW_LOCK_UNLOCKED/RW_LOCK_UNLOCKED(vnetPeerLock)/' \
-			-i ../vmnet-only/driver.c
-	fi
-	%if %{with dist_kernel}
-		%{__make} -j1 -C %{_kernelsrcdir} O=$PWD/o prepare scripts
-	%else
-		install -d o/include/config
-		touch o/include/config/MARKER
-		ln -sf %{_kernelsrcdir}/scripts o/scripts
-		%endif
-		%{__make} -C %{_kernelsrcdir} modules \
-			VMWARE_VER=VME_V5 \
-			SRCROOT=$PWD \
-			M=$PWD O=$PWD/o \
-			VM_KBUILD=26 \
-			%{?with_verbose:V=1} \
-			VM_CCVER=%{ccver}
-		mv -f $mod.ko ../built/$mod-$cfg.ko
-		cd -
-	done
-done
-%endif
+%build_kernel_modules -C vmci-only -m vmci SRCROOT=$PWD VM_KBUILD=26 VM_CCVER=%{ccver}
+
+%build_kernel_modules -C vmmon-only -m vmmon SRCROOT=$PWD VM_KBUILD=26 VM_CCVER=%{ccver} <<'EOF'
+if grep -q "^CONFIG_PREEMPT_RT=y$" o/.config; then
+	sed -e '/pollQueueLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(pollQueueLock)/' \
+		-e '/timerLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(timerLock)/' \
+	linux/driver.c.dist > linux/driver.c
+else
+	cat linux/driver.c.dist > linux/driver.c
+fi
+EOF
+
+%build_kernel_modules -C vmnet-only -m vmnet SRCROOT=$PWD VM_KBUILD=26 VM_CCVER=%{ccver} <<'EOF'
+if grep -q "^CONFIG_PREEMPT_RT=y$" o/.config; then
+	sed -e 's/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(vnetHubLock)/' \
+		 hub.c.dist > hub.c
+	sed -e 's/RW_LOCK_UNLOCKED/RW_LOCK_UNLOCKED(vnetPeerLock)/' \
+		driver.c.dist > driver.c
+else
+	cat hub.c.dist > hub.c
+	cat driver.c.dist > driver.c
+fi
+EOF
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -331,17 +348,9 @@ install -d \
 %endif
 
 %if %{with kernel}
-install -d $RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/misc
-
-#cd vmware-any-any-update%{urel}
-cd lib/modules/source
-
-install built/vmmon-%{?with_dist_kernel:dist}%{!?with_dist_kernel:nondist}.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmmon.ko
-install built/vmnet-%{?with_dist_kernel:dist}%{!?with_dist_kernel:nondist}.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmnet.ko
-
-cd -
+%install_kernel_modules -m lib/modules/vmci-only/vmci -d misc
+%install_kernel_modules -m lib/modules/vmmon-only/vmmon -d misc
+%install_kernel_modules -m lib/modules/vmnet-only/vmnet -d misc
 %endif
 
 %if %{with userspace}
@@ -404,6 +413,12 @@ if [ "$1" = "0" ]; then
 	%service vmnet stop
 	/sbin/chkconfig --del vmnet
 fi
+
+%post	-n kernel-misc-vmci
+%depmod %{_kernel_ver}
+
+%postun -n kernel-misc-vmci
+%depmod %{_kernel_ver}
 
 %post	-n kernel-misc-vmmon
 %depmod %{_kernel_ver}
@@ -526,6 +541,10 @@ fi
 %endif
 
 %if %{with kernel}
+%files -n kernel-misc-vmci
+%defattr(644,root,root,755)
+/lib/modules/%{_kernel_ver}/misc/vmci.ko*
+
 %files -n kernel-misc-vmmon
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}/misc/vmmon.ko*

@@ -314,6 +314,7 @@ else
 	cat driver.c.dist > driver.c
 fi
 EOF
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT

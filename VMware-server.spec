@@ -21,7 +21,7 @@
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
 %bcond_without	kernel		# don't build kernel modules
-%bcond_with	userspace	# don't build userspace utilities
+%bcond_without	userspace	# don't build userspace utilities
 %bcond_with	internal_libs	# internal libs stuff
 %bcond_with	verbose		# verbose build (V=1)
 #
@@ -239,9 +239,8 @@ cd lib/modules
 mv vmmon-only/linux/driver.c{,.dist}
 mv vmnet-only/hub.c{,.dist}
 mv vmnet-only/driver.c{,.dist}
-cd -
 rm -rf binary # unusable
-
+cd -
 
 %if 0
 tar zxf vmware-mui-distrib/console-distrib/%{name}-console-%{ver}-%{subver}.tar.gz

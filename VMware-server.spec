@@ -27,47 +27,54 @@
 #
 %include	/usr/lib/rpm/macros.perl
 #
-%define		_ver	1.0.4
-%define		_build	56528
-%define		_rel	0.2
-%define		_urel	115
-%define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
+%define		ver	2.0
+%define		subver	63231
+%define		rel	0.1
+%define		urel	115
+%define		ccver	%(rpm -q --qf %{V} gcc)
 #
 Summary:	VMware Server
 Summary(pl.UTF-8):	VMware Server - wirtualna platforma dla stacji roboczej
 Name:		VMware-server
-Version:	%{_ver}.%{_build}
-Release:	%{_rel}
+Version:	%{ver}.%{subver}
+Release:	%{rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
-Source0:	http://download3.vmware.com/software/vmserver/%{name}-%{_ver}-%{_build}.tar.gz
-# NoSource0-md5:	60ec55cd66b77fb202d88bee79baebdf
-Source1:	http://download3.vmware.com/software/vmserver/VMware-mui-%{_ver}-%{_build}.tar.gz
-# NoSource1-md5:	6b13063d8ea83c2280549d33da92c476
-Source2:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# NoSource2-md5:	ab33ff7a799fee77f0f4ba5667cd4b9a
-Source3:	%{name}.init
-Source4:	%{name}-vmnet.conf
-Source5:	%{name}.png
-Source6:	%{name}.desktop
-Source7:	%{name}-nat.conf
-Source8:	%{name}-dhcpd.conf
+# http://www.vmware.com/beta/server/download.html
+Source0:	http://download3.vmware.com/software/vmserver/%{name}-e.x.p-%{subver}.i386.tar.gz
+# NoSource0-md5:	853247ff0e313f34bd0c3052de8e2c28
+Source1:	http://download3.vmware.com/software/vmserver/%{name}-e.x.p-%{subver}.x86_64.tar.gz
+# NoSource1-md5:	0d36ae02640d913251fd11918f798da3
+Source2:	http://download3.vmware.com/software/vmserver/VMware-vix-e.x.p-%{subver}.i386.tar.gz
+# NoSource2-md5:	c7d162fb8c805143ea5b40e7f62ef4da
+Source3:	http://download3.vmware.com/software/vmserver/VMware-vix-e.x.p-%{subver}.x86_64.tar.gz
+# NoSource3-md5:	10124d4747e7a579a270376458b7a77b
+Source4:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{urel}.tar.gz
+# NoSource4-md5:	ab33ff7a799fee77f0f4ba5667cd4b9a
+Source5:	%{name}.init
+Source6:	%{name}-vmnet.conf
+Source7:	%{name}.png
+Source8:	%{name}.desktop
+Source9:	%{name}-nat.conf
+Source10:	%{name}-dhcpd.conf
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-run_script.patch
 Patch2:		%{name}-init_pl.patch
 NoSource:	0
 NoSource:	1
 NoSource:	2
+NoSource:	3
+NoSource:	4
 URL:		http://www.vmware.com/
-BuildRequires:	gcc-c++
 %{?with_dist_kernel:BuildRequires:	kernel-module-build >= 3:2.6.20.2}
+BuildRequires:	libstdc++-devel
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.379
 BuildRequires:	sed >= 4.0
 Requires:	libgnomecanvasmm
 Requires:	libsexy
 Requires:	libsexymm
-ExclusiveArch:	%{ix86}
+ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_noautoprovfiles %{_libdir}/vmware*/lib/.*\.so.*
@@ -163,7 +170,7 @@ Narzędzia VMware do SMB.
 %package -n kernel-misc-vmmon
 Summary:	Kernel module for VMware Server
 Summary(pl.UTF-8):	Moduł jądra dla VMware Server
-Release:	%{_rel}@%{_kernel_ver_str}
+Release:	%{rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
 Requires:	dev >= 2.9.0-7
@@ -171,7 +178,7 @@ Requires:	dev >= 2.9.0-7
 %requires_releq_kernel
 Requires(postun):	%releq_kernel
 %endif
-Provides:	kernel(vmmon) = %{version}-%{_rel}
+Provides:	kernel(vmmon) = %{version}-%{rel}
 
 %description -n kernel-misc-vmmon
 Kernel modules for VMware Server - vmmon.
@@ -182,7 +189,7 @@ Moduły jądra dla VMware Server - vmmon.
 %package -n kernel-misc-vmnet
 Summary:	Kernel module for VMware Server
 Summary(pl.UTF-8):	Moduł jądra dla VMware Server
-Release:	%{_rel}@%{_kernel_ver_str}
+Release:	%{rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
 Requires:	dev >= 2.9.0-7
@@ -190,7 +197,7 @@ Requires:	dev >= 2.9.0-7
 %requires_releq_kernel
 Requires(postun):	%releq_kernel
 %endif
-Provides:	kernel(vmnet) = %{version}-%{_rel}
+Provides:	kernel(vmnet) = %{version}-%{rel}
 
 %description -n kernel-misc-vmnet
 Kernel modules for VMware Server - vmnet.
@@ -200,8 +207,8 @@ Moduły jądra dla VMware Server - vmnet.
 
 %prep
 %setup -q -n vmware-server-distrib -a1 -a2
-tar zxf vmware-mui-distrib/console-distrib/%{name}-console-%{_ver}-%{_build}.tar.gz
-cp vmware-any-any-update%{_urel}/{vmmon,vmnet}.tar lib/modules/source/
+tar zxf vmware-mui-distrib/console-distrib/%{name}-console-%{ver}-%{subver}.tar.gz
+cp vmware-any-any-update%{urel}/{vmmon,vmnet}.tar lib/modules/source/
 cd lib/modules/source
 tar xf vmmon.tar
 tar xf vmnet.tar
@@ -216,7 +223,7 @@ tar xf lib/perl/control.tar
 %build
 sed -i 's:vm_db_answer_LIBDIR:VM_LIBDIR:g;s:vm_db_answer_BINDIR:VM_BINDIR:g' bin/vmware
 
-cd vmware-any-any-update%{_urel}
+cd vmware-any-any-update%{urel}
 chmod u+w ../lib/bin/vmware-vmx ../lib/bin-debug/vmware-vmx ../bin/vmnet-bridge
 
 %if 0
@@ -279,7 +286,7 @@ for mod in vmmon vmnet ; do
 			M=$PWD O=$PWD/o \
 			VM_KBUILD=26 \
 			%{?with_verbose:V=1} \
-			VM_CCVER=%{_ccver}
+			VM_CCVER=%{ccver}
 		mv -f $mod.ko ../built/$mod-$cfg.ko
 		cd -
 	done
@@ -321,7 +328,7 @@ install -d \
 %if %{with kernel}
 install -d $RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/misc
 
-#cd vmware-any-any-update%{_urel}
+#cd vmware-any-any-update%{urel}
 cd lib/modules/source
 
 install built/vmmon-%{?with_dist_kernel:dist}%{!?with_dist_kernel:nondist}.ko \
@@ -333,12 +340,12 @@ cd -
 %endif
 
 %if %{with userspace}
-install %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmnet
-install %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet.conf
-install %{SOURCE5} $RPM_BUILD_ROOT%{_pixmapsdir}
-install %{SOURCE6} $RPM_BUILD_ROOT%{_desktopdir}
-install %{SOURCE7} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/nat/nat.conf
-install %{SOURCE8} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
+install %{SOURCE5} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmnet
+install %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet.conf
+install %{SOURCE7} $RPM_BUILD_ROOT%{_pixmapsdir}
+install %{SOURCE8} $RPM_BUILD_ROOT%{_desktopdir}
+install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/nat/nat.conf
+install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
 
 touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases
 touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases~

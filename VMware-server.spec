@@ -20,16 +20,17 @@
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
-%bcond_without	kernel		# don't build kernel modules
+%bcond_with	kernel		# don't build kernel modules
 %bcond_without	userspace	# don't build userspace utilities
 %bcond_with	internal_libs	# internal libs stuff
+%bcond_with	doc # package huge docs
 %bcond_with	verbose		# verbose build (V=1)
 #
 %include	/usr/lib/rpm/macros.perl
 #
 %define		ver	2.0
 %define		subver	63231
-%define		rel	0.1
+%define		rel	0.2
 %define		urel	115
 %define		ccver	%(rpm -q --qf %{V} gcc)
 #
@@ -71,9 +72,9 @@ BuildRequires:	libstdc++-devel
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.438
 BuildRequires:	sed >= 4.0
-Requires:	libgnomecanvasmm
-Requires:	libsexy
-Requires:	libsexymm
+#Requires:	libgnomecanvasmm
+#Requires:	libsexy
+#Requires:	libsexymm
 ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -332,11 +333,14 @@ install -d \
 	$RPM_BUILD_ROOT/etc/rc.d/init.d \
 	$RPM_BUILD_ROOT/var/{log,run}/vmware
 
+%if 0
 	cd control-only
 	%{__make} install \
 		DESTDIR=$RPM_BUILD_ROOT
 	cd ..
+%endif
 
+%if 0
 	# copy other required perl modules
 	cp -r lib/perl5/site_perl/5.005/VMware $RPM_BUILD_ROOT%{perl_vendorarch}
 	cp -r lib/perl5/site_perl/5.005/i386-linux/VMware/VmdbPerl $RPM_BUILD_ROOT%{perl_vendorarch}/VMware
@@ -345,6 +349,7 @@ install -d \
 
 	# remove unecessary files
 	rm -f $RPM_BUILD_ROOT%{perl_vendorarch}/auto/VMware/{HConfig,VmdbPerl,VmPerl}/.{exists,packlist}
+%endif
 %endif
 
 %if %{with kernel}
@@ -368,12 +373,20 @@ install bin/*-* $RPM_BUILD_ROOT%{_bindir}
 install sbin/*-* $RPM_BUILD_ROOT%{_sbindir}
 install lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware/bin
 
-sed -e ' s@%sitearch%@%{perl_sitearch}@g; s@%sitelib%@%{perl_sitelib}@g; s@%vendorarch%@%{perl_vendorarch}@g; s@%vendorlib%@%{perl_vendorlib}@g; s@%archlib%@%{perl_archlib}@g; s@%privlib%@%{perl_privlib}@g;' < lib/serverd/init.pl.default > $RPM_BUILD_ROOT%{_libdir}/vmware/serverd/init.pl
+%if 0
+sed -e '
+s@%sitearch%@%{perl_sitearch}@g;
+s@%sitelib%@%{perl_sitelib}@g;
+s@%vendorarch%@%{perl_vendorarch}@g;
+s@%vendorlib%@%{perl_vendorlib}@g;
+s@%archlib%@%{perl_archlib}@g;
+s@%privlib%@%{perl_privlib}@g;' < lib/serverd/init.pl.default > $RPM_BUILD_ROOT%{_libdir}/vmware/serverd/init.pl
+%endif
 
-#cp -r	lib/{bin-debug,config,help*,isoimages,licenses,messages,smb,xkeymap} \
-cp -r	lib/{bin-debug,config,help*,isoimages,licenses,messages,share,xkeymap} \
+cp -r	lib/{config,help,isoimages,licenses,messages,share,xkeymap} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware
 
+%if 0
 cp -r	vmware-server-console-distrib/lib/{bin-debug,config,help*,messages,share,xkeymap} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware-server-console
 
@@ -381,6 +394,7 @@ install vmware-server-console-distrib/lib/bin/vmware-remotemks $RPM_BUILD_ROOT%{
 
 cp -r	vmware-server-console-distrib/man/* man/* $RPM_BUILD_ROOT%{_mandir}
 gunzip	$RPM_BUILD_ROOT%{_mandir}/man?/*.gz
+%endif
 
 cat > $RPM_BUILD_ROOT%{_sysconfdir}/vmware-server-console/locations <<EOF
 VM_BINDIR=%{_bindir}
@@ -389,15 +403,20 @@ EOF
 
 %if %{with internal_libs}
 install bin/vmware $RPM_BUILD_ROOT%{_bindir}
-install lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware/bin
+#install lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware/bin
 cp -r	lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware
 
+%if 0
 install vmware-server-console-distrib/bin/vmware-server-console $RPM_BUILD_ROOT%{_bindir}
 install vmware-server-console-distrib/lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware-server-console/bin
 cp -r	vmware-server-console-distrib/lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware-server-console
+%endif
+
 %else
+%if 0
 install lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
 install vmware-server-console-distrib/lib/bin/vmware-server-console $RPM_BUILD_ROOT%{_bindir}
+%endif
 %endif
 %endif
 
@@ -435,14 +454,22 @@ fi
 %if %{with userspace}
 %files
 %defattr(644,root,root,755)
-%doc doc/* lib/configurator/vmnet-{dhcpd,nat}.conf
+%{?with_doc:%doc doc/*}
+%doc lib/configurator/vmnet-{dhcpd,nat}.conf
 %dir %{_sysconfdir}/vmware
 %attr(755,root,root) %{_bindir}/vm-support
-%attr(755,root,root) %{_bindir}/vmware-authtrusted
-%attr(755,root,root) %{_bindir}/vmware-cmd
-%attr(755,root,root) %{_bindir}/vmware
-%attr(755,root,root) %{_bindir}/vmware-loop
-%attr(755,root,root) %{_bindir}/vmware-mount.pl
+#%attr(755,root,root) %{_bindir}/vmware-authtrusted
+#%attr(755,root,root) %{_bindir}/vmware-cmd
+#%attr(755,root,root) %{_bindir}/vmware
+#%attr(755,root,root) %{_bindir}/vmware-loop
+#%attr(755,root,root) %{_bindir}/vmware-mount.pl
+%attr(755,root,root) %{_bindir}/vmware-config.pl
+%attr(755,root,root) %{_bindir}/vmware-mount
+%attr(755,root,root) %{_bindir}/vmware-uninstall.pl
+%attr(755,root,root) %{_bindir}/vmware-vimdump
+%attr(755,root,root) %{_bindir}/vmware-vimsh
+%attr(755,root,root) %{_bindir}/vmware-vsh
+%attr(755,root,root) %{_bindir}/vmware-watchdog
 %attr(755,root,root) %{_bindir}/vmware-vdiskmanager
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/vmware
@@ -457,17 +484,17 @@ fi
 %attr(755,root,root) %{_libdir}/vmware/lib/wrapper-gtk24.sh
 %endif
 %dir %{_libdir}/vmware/serverd
-%attr(750,root,root) %{_libdir}/vmware/serverd/init.pl
+#%attr(750,root,root) %{_libdir}/vmware/serverd/init.pl
 %{_libdir}/vmware/licenses
 %dir %{_libdir}/vmware/messages
-%{_libdir}/vmware/messages/en
+#%{_libdir}/vmware/messages/en
 %lang(ja) %{_libdir}/vmware/messages/ja
 %{_libdir}/vmware/share
 %{_libdir}/vmware/xkeymap
-%{_mandir}/man1/vmware.1*
-%{_mandir}/man3/*
-%{perl_vendorarch}/VMware
-%{perl_vendorarch}/auto/VMware
+#%{_mandir}/man1/vmware.1*
+#%{_mandir}/man3/*
+#%{perl_vendorarch}/VMware
+#%{perl_vendorarch}/auto/VMware
 %attr(1777,root,root) %dir /var/run/vmware
 %attr(751,root,root) %dir /var/log/vmware
 %{_pixmapsdir}/*.png
@@ -477,35 +504,35 @@ fi
 %defattr(644,root,root,755)
 %dir %{_sysconfdir}/vmware-server-console
 %{_sysconfdir}/vmware-server-console/locations
-%attr(755,root,root) %{_bindir}/vmware-server-console
+#%attr(755,root,root) %{_bindir}/vmware-server-console
 %dir %{_libdir}/vmware-server-console
 %dir %{_libdir}/vmware-server-console/bin
-%attr(755,root,root) %{_libdir}/vmware-server-console/bin/vmware-remotemks
-%{_libdir}/vmware-server-console/config
+#%attr(755,root,root) %{_libdir}/vmware-server-console/bin/vmware-remotemks
+#%{_libdir}/vmware-server-console/config
 %if %{with internal_libs}
 %attr(755,root,root) %{_libdir}/vmware-server-console/bin/vmware
 %{_libdir}/vmware-server-console/lib
 %attr(755,root,root) %{_libdir}/vmware-server-console/lib/wrapper-gtk24.sh
 %endif
-%dir %{_libdir}/vmware-server-console/messages
+#%dir %{_libdir}/vmware-server-console/messages
 #%{_libdir}/vmware-server-console/messages/en
-%lang(ja) %{_libdir}/vmware-server-console/messages/ja
-%{_libdir}/vmware-server-console/share
-%{_libdir}/vmware-server-console/xkeymap
-%{_mandir}/man1/vmware-server-console.1*
+#%lang(ja) %{_libdir}/vmware-server-console/messages/ja
+#%{_libdir}/vmware-server-console/share
+#%{_libdir}/vmware-server-console/xkeymap
+#%{_mandir}/man1/vmware-server-console.1*
 
 %files console-help
 %defattr(644,root,root,755)
-%{_libdir}/vmware-server-console/help*
+#%{_libdir}/vmware-server-console/help*
 
 %files debug
 %defattr(644,root,root,755)
-%dir %{_libdir}/vmware/bin-debug
+#%dir %{_libdir}/vmware/bin-debug
 # warning: SUID !!!
-%attr(4755,root,root) %{_libdir}/vmware/bin-debug/vmware-vmx
-%dir %{_libdir}/vmware-server-console/bin-debug
-%attr(755,root,root) %{_libdir}/vmware/bin-debug/vmware-remotemks
-%attr(755,root,root) %{_libdir}/vmware-server-console/bin-debug/vmware-remotemks
+#%attr(4755,root,root) %{_libdir}/vmware/bin-debug/vmware-vmx
+#%dir %{_libdir}/vmware-server-console/bin-debug
+#%attr(755,root,root) %{_libdir}/vmware/bin-debug/vmware-remotemks
+#%attr(755,root,root) %{_libdir}/vmware-server-console/bin-debug/vmware-remotemks
 
 %files help
 %defattr(644,root,root,755)

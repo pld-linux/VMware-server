@@ -22,15 +22,15 @@
 %bcond_without	dist_kernel	# without distribution kernel
 %bcond_with	kernel		# don't build kernel modules
 %bcond_without	userspace	# don't build userspace utilities
-%bcond_with	internal_libs	# internal libs stuff
-%bcond_with	doc # package huge docs
+%bcond_without	internal_libs	# internal libs stuff
+%bcond_without	doc # package huge docs
 %bcond_with	verbose		# verbose build (V=1)
 #
 %include	/usr/lib/rpm/macros.perl
 #
 %define		ver	2.0
 %define		subver	63231
-%define		rel	0.2
+%define		rel	0.4
 %define		urel	115
 %define		ccver	%(%{__cc} -dumpversion)
 #
@@ -58,6 +58,7 @@ Source7:	%{name}.png
 Source8:	%{name}.desktop
 Source9:	%{name}-nat.conf
 Source10:	%{name}-dhcpd.conf
+Source11:	%{name}-libs
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-run_script.patch
 Patch2:		%{name}-init_pl.patch
@@ -79,6 +80,14 @@ ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_noautoprovfiles %{_libdir}/vmware*/lib/.*\.so.*
+# TMP hack to compare with upstream rpm
+%define		_libdir		%{_prefix}/lib
+%define		_docdir		%{_defaultdocdir}/vmware
+
+%define		sonamedeps	%(cat %{SOURCE11} | xargs)
+
+%define		_noautoprov		%sonamedeps
+%define		_noautoreq		%sonamedeps
 
 %description
 VMware Server Virtual Platform is a thin software layer that allows
@@ -240,8 +249,10 @@ cd lib/modules
 mv vmmon-only/linux/driver.c{,.dist}
 mv vmnet-only/hub.c{,.dist}
 mv vmnet-only/driver.c{,.dist}
-rm -rf binary # unusable
+#rm -rf binary # unusable
 cd -
+
+%{__gzip} -d man/man1/vmware.1.gz
 
 %if 0
 tar zxf vmware-mui-distrib/console-distrib/%{name}-console-%{ver}-%{subver}.tar.gz
@@ -326,7 +337,6 @@ install -d \
 	$RPM_BUILD_ROOT%{_bindir} \
 	$RPM_BUILD_ROOT%{_sbindir} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware{,-server-console}/bin \
-	$RPM_BUILD_ROOT%{_libdir}/vmware/serverd \
 	$RPM_BUILD_ROOT%{_mandir} \
 	$RPM_BUILD_ROOT%{_pixmapsdir} \
 	$RPM_BUILD_ROOT%{_desktopdir} \
@@ -342,10 +352,10 @@ install -d \
 
 %if 0
 	# copy other required perl modules
-	cp -r lib/perl5/site_perl/5.005/VMware $RPM_BUILD_ROOT%{perl_vendorarch}
-	cp -r lib/perl5/site_perl/5.005/i386-linux/VMware/VmdbPerl $RPM_BUILD_ROOT%{perl_vendorarch}/VMware
-	cp -r lib/perl5/site_perl/5.005/i386-linux/VMware/{HConfig,VmdbPerl}.pm $RPM_BUILD_ROOT%{perl_vendorarch}/VMware
-	cp -r lib/perl5/site_perl/5.005/i386-linux/auto/VMware/{HConfig,VmdbPerl} $RPM_BUILD_ROOT%{perl_vendorarch}/auto/VMware
+	cp -a lib/perl5/site_perl/5.005/VMware $RPM_BUILD_ROOT%{perl_vendorarch}
+	cp -a lib/perl5/site_perl/5.005/i386-linux/VMware/VmdbPerl $RPM_BUILD_ROOT%{perl_vendorarch}/VMware
+	cp -a lib/perl5/site_perl/5.005/i386-linux/VMware/{HConfig,VmdbPerl}.pm $RPM_BUILD_ROOT%{perl_vendorarch}/VMware
+	cp -a lib/perl5/site_perl/5.005/i386-linux/auto/VMware/{HConfig,VmdbPerl} $RPM_BUILD_ROOT%{perl_vendorarch}/auto/VMware
 
 	# remove unecessary files
 	rm -f $RPM_BUILD_ROOT%{perl_vendorarch}/auto/VMware/{HConfig,VmdbPerl,VmPerl}/.{exists,packlist}
@@ -372,6 +382,29 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases~
 install bin/*-* $RPM_BUILD_ROOT%{_bindir}
 install sbin/*-* $RPM_BUILD_ROOT%{_sbindir}
 install lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware/bin
+cp -a lib/webAccess $RPM_BUILD_ROOT%{_libdir}/vmware
+cp -a lib/hostd $RPM_BUILD_ROOT%{_libdir}/vmware
+cp -a vmware-vix $RPM_BUILD_ROOT%{_libdir}/vmware
+cp -a lib/vmacore $RPM_BUILD_ROOT%{_libdir}/vmware
+cp -a lib/net-services.sh $RPM_BUILD_ROOT%{_libdir}/vmware
+cp -a lib/modules $RPM_BUILD_ROOT%{_libdir}/vmware
+rm -rf $RPM_BUILD_ROOT%{_libdir}/vmware/modules/*-only
+cp -a lib/configurator $RPM_BUILD_ROOT%{_libdir}/vmware
+cp -a etc/hostd $RPM_BUILD_ROOT/etc/vmware/hostd
+cp -a etc/installer.sh $RPM_BUILD_ROOT/etc/vmware
+cp -a etc/pam.d $RPM_BUILD_ROOT/etc/vmware
+cp -a etc/service $RPM_BUILD_ROOT/etc/vmware
+
+install -d $RPM_BUILD_ROOT%{_docdir}
+cp -a doc/* $RPM_BUILD_ROOT%{_docdir}
+cp -a vmware-vix-distrib/doc/VMwareVix $RPM_BUILD_ROOT%{_docdir}
+install -d $RPM_BUILD_ROOT%{_mandir}/man1
+cp -a man/man1/vmware.1 $RPM_BUILD_ROOT%{_mandir}/man1
+
+rm $RPM_BUILD_ROOT/usr/bin/vmware-uninstall.pl
+rm $RPM_BUILD_ROOT/usr/bin/vmware-vimdump
+rm $RPM_BUILD_ROOT/usr/share/applications/VMware-server.desktop
+rm $RPM_BUILD_ROOT/usr/share/pixmaps/VMware-server.png
 
 %if 0
 sed -e '
@@ -383,16 +416,16 @@ s@%archlib%@%{perl_archlib}@g;
 s@%privlib%@%{perl_privlib}@g;' < lib/serverd/init.pl.default > $RPM_BUILD_ROOT%{_libdir}/vmware/serverd/init.pl
 %endif
 
-cp -r	lib/{config,help,isoimages,licenses,messages,share,xkeymap} \
+cp -a	lib/{config,help,isoimages,licenses,messages,share,xkeymap} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware
 
 %if 0
-cp -r	vmware-server-console-distrib/lib/{bin-debug,config,help*,messages,share,xkeymap} \
+cp -a	vmware-server-console-distrib/lib/{bin-debug,config,help*,messages,share,xkeymap} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware-server-console
 
 install vmware-server-console-distrib/lib/bin/vmware-remotemks $RPM_BUILD_ROOT%{_libdir}/vmware-server-console/bin
 
-cp -r	vmware-server-console-distrib/man/* man/* $RPM_BUILD_ROOT%{_mandir}
+cp -a	vmware-server-console-distrib/man/* man/* $RPM_BUILD_ROOT%{_mandir}
 gunzip	$RPM_BUILD_ROOT%{_mandir}/man?/*.gz
 %endif
 
@@ -403,13 +436,14 @@ EOF
 
 %if %{with internal_libs}
 install bin/vmware $RPM_BUILD_ROOT%{_bindir}
+install lib/bin/* $RPM_BUILD_ROOT%{_libdir}/vmware/bin
 #install lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware/bin
-cp -r	lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware
+cp -a	lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware
 
 %if 0
 install vmware-server-console-distrib/bin/vmware-server-console $RPM_BUILD_ROOT%{_bindir}
 install vmware-server-console-distrib/lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware-server-console/bin
-cp -r	vmware-server-console-distrib/lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware-server-console
+cp -a	vmware-server-console-distrib/lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware-server-console
 %endif
 
 %else
@@ -453,37 +487,129 @@ fi
 
 %if %{with userspace}
 %files
-%defattr(644,root,root,755)
-%{?with_doc:%doc doc/*}
-%doc lib/configurator/vmnet-{dhcpd,nat}.conf
+%defattr(444,root,root,755)
+#%doc lib/configurator/vmnet-{dhcpd,nat}.conf
 %dir %{_sysconfdir}/vmware
-%attr(755,root,root) %{_bindir}/vm-support
+%dir %{_sysconfdir}/vmware/hostd
+%dir %{_sysconfdir}/vmware/hostd/env
+%attr(644,root,root) %{_sysconfdir}/vmware/hostd/env/*.xml
+%attr(444,root,root) %{_sysconfdir}/vmware/hostd/key.pub
+%attr(644,root,root) %{_sysconfdir}/vmware/hostd/*.vha
+%attr(644,root,root) %{_sysconfdir}/vmware/hostd/*.xml
+%dir %{_sysconfdir}/vmware/pam.d
+%attr(644,root,root) %{_sysconfdir}/vmware/pam.d/vmware-authd
+%dir %{_sysconfdir}/vmware/service
+%attr(644,root,root) %{_sysconfdir}/vmware/service/services.xml
+%attr(555,root,root) %{_sysconfdir}/vmware/installer.sh
+%attr(555,root,root) %{_bindir}/vm-support
 #%attr(755,root,root) %{_bindir}/vmware-authtrusted
 #%attr(755,root,root) %{_bindir}/vmware-cmd
-#%attr(755,root,root) %{_bindir}/vmware
 #%attr(755,root,root) %{_bindir}/vmware-loop
 #%attr(755,root,root) %{_bindir}/vmware-mount.pl
-%attr(755,root,root) %{_bindir}/vmware-config.pl
-%attr(755,root,root) %{_bindir}/vmware-mount
-%attr(755,root,root) %{_bindir}/vmware-uninstall.pl
-%attr(755,root,root) %{_bindir}/vmware-vimdump
-%attr(755,root,root) %{_bindir}/vmware-vimsh
-%attr(755,root,root) %{_bindir}/vmware-vsh
-%attr(755,root,root) %{_bindir}/vmware-watchdog
-%attr(755,root,root) %{_bindir}/vmware-vdiskmanager
-%attr(755,root,root) %{_sbindir}/*
+%attr(555,root,root) %{_bindir}/vmware-config.pl
+%attr(555,root,root) %{_bindir}/vmware-mount
+#%attr(555,root,root) %{_bindir}/vmware-uninstall.pl
+#%attr(555,root,root) %{_bindir}/vmware-vimdump
+%attr(555,root,root) %{_bindir}/vmware-vimsh
+%attr(555,root,root) %{_bindir}/vmware-vsh
+%attr(555,root,root) %{_bindir}/vmware-watchdog
+%attr(555,root,root) %{_bindir}/vmware-vdiskmanager
+%attr(4555,root,root) %{_sbindir}/vmware-authd
+%attr(555,root,root) %{_sbindir}/vmware-authdlauncher
+%attr(555,root,root) %{_sbindir}/vmware-hostd
 %dir %{_libdir}/vmware
 %dir %{_libdir}/vmware/bin
 # warning: SUID !!!
-%attr(4755,root,root) %{_libdir}/vmware/bin/vmware-vmx
+%attr(555,root,root) %{_libdir}/vmware/bin/vmware-vmx
 %{_libdir}/vmware/config
 %{_libdir}/vmware/isoimages
 %if %{with internal_libs}
-%attr(755,root,root) %{_libdir}/vmware/bin/vmware
-%{_libdir}/vmware/lib
-%attr(755,root,root) %{_libdir}/vmware/lib/wrapper-gtk24.sh
+%attr(555,root,root) %{_bindir}/vmware
+# - XXX -networking
+%attr(4555,root,root) %{_bindir}/vmware-ping
+#%attr(755,root,root) %{_libdir}/vmware/bin/vmware
+%attr(555,root,root) %{_libdir}/vmware/bin/openssl
+%attr(555,root,root) %{_libdir}/vmware/bin/vmplayer
+%attr(555,root,root) %{_libdir}/vmware/bin/vmrun
+%attr(755,root,root) %{_libdir}/vmware/bin/vmware-hostd
+%attr(755,root,root) %{_libdir}/vmware/bin/vmware-hostd-dynamic
+%attr(555,root,root) %{_libdir}/vmware/bin/vmware-remotemks
+%attr(555,root,root) %{_libdir}/vmware/bin/vmware-remotemks-debug
+%attr(555,root,root) %{_libdir}/vmware/bin/vmware-vimdump
+%attr(555,root,root) %{_libdir}/vmware/bin/vmware-vmx-debug
+%attr(777,root,root) %{_libdir}/vmware/bin/vmware-vmx-stats
+%attr(755,root,root) %{_libdir}/vmware/bin/vmware-vsh
+
+%dir %{_libdir}/vmware/lib
+%{_libdir}/vmware/lib/libXau.so.6
+%{_libdir}/vmware/lib/libXcursor.so.1
+%{_libdir}/vmware/lib/libXdmcp.so.6
+%{_libdir}/vmware/lib/libXfixes.so.3
+%{_libdir}/vmware/lib/libXft.so.2
+%{_libdir}/vmware/lib/libXinerama.so.1
+%{_libdir}/vmware/lib/libXrandr.so.2
+%{_libdir}/vmware/lib/libXrender.so.1
+%{_libdir}/vmware/lib/libart_lgpl_2.so.2
+%{_libdir}/vmware/lib/libatk-1.0.so.0
+%{_libdir}/vmware/lib/libatkmm-1.6.so.1
+%{_libdir}/vmware/lib/libcairo.so.2
+%{_libdir}/vmware/lib/libcairomm-1.0.so.1
+%{_libdir}/vmware/lib/libcrypto.so.0.9.7
+%{_libdir}/vmware/lib/libcurl.so.3
+%{_libdir}/vmware/lib/libcurl.so.4
+%{_libdir}/vmware/lib/libfontconfig.so.1
+%{_libdir}/vmware/lib/libfreetype.so.6
+%{_libdir}/vmware/lib/libgdk-x11-2.0.so.0
+%{_libdir}/vmware/lib/libgdk_pixbuf-2.0.so.0
+%{_libdir}/vmware/lib/libgdkmm-2.4.so.1
+%{_libdir}/vmware/lib/libglib-2.0.so.0
+%{_libdir}/vmware/lib/libglibmm-2.4.so.1
+%{_libdir}/vmware/lib/libglibmm_generate_extra_defs-2.4.so.1
+%{_libdir}/vmware/lib/libgmodule-2.0.so.0
+%{_libdir}/vmware/lib/libgobject-2.0.so.0
+%{_libdir}/vmware/lib/libgthread-2.0.so.0
+%{_libdir}/vmware/lib/libgtk-x11-2.0.so.0
+%{_libdir}/vmware/lib/libgtkmm-2.4.so.1
+%{_libdir}/vmware/lib/libpango-1.0.so.0
+%{_libdir}/vmware/lib/libpangocairo-1.0.so.0
+%{_libdir}/vmware/lib/libpangoft2-1.0.so.0
+%{_libdir}/vmware/lib/libpangomm-1.4.so.1
+%{_libdir}/vmware/lib/libpangox-1.0.so.0
+%{_libdir}/vmware/lib/libpangoxft-1.0.so.0
+%{_libdir}/vmware/lib/librsvg-2.so.2
+%{_libdir}/vmware/lib/libsexy.so.2
+%{_libdir}/vmware/lib/libsexymm.so.2
+%{_libdir}/vmware/lib/libsigc-2.0.so.0
+%{_libdir}/vmware/lib/libssl.so.0.9.7
+%{_libdir}/vmware/lib/libview.so.2
+%{_libdir}/vmware/lib/libxmlrpc.so.3
+%{_libdir}/vmware/lib/libxmlrpc_client.so.3
+%{_libdir}/vmware/lib/libxmlrpc_util.so.3
+%{_libdir}/vmware/lib/libxmlrpc_xmlparse.so.3
+%{_libdir}/vmware/lib/libxmlrpc_xmltok.so.3
+
+
+%dir %{_libdir}/vmware/lib/libexpat.so.0
+%attr(755,root,root) %{_libdir}/vmware/lib/libexpat.so.0/libexpat.so.0
+%dir %{_libdir}/vmware/lib/libgcc_s.so.1
+%attr(755,root,root) %{_libdir}/vmware/lib/libgcc_s.so.1/libgcc_s.so.1
+%dir %{_libdir}/vmware/lib/libgvmomi.so.0
+%attr(555,root,root) %{_libdir}/vmware/lib/libgvmomi.so.0/libgvmomi.so.0
+%dir %{_libdir}/vmware/lib/libpng12.so.0
+%attr(755,root,root) %{_libdir}/vmware/lib/libpng12.so.0/libpng12.so.0
+%dir %{_libdir}/vmware/lib/libstdc++.so.6
+%attr(755,root,root) %{_libdir}/vmware/lib/libstdc++.so.6/libstdc++.so.6
+%dir %{_libdir}/vmware/lib/libvmwarebase.so.0
+%attr(555,root,root) %{_libdir}/vmware/lib/libvmwarebase.so.0/libvmwarebase.so.0
+%dir %{_libdir}/vmware/lib/libvmwareui.so.0
+%attr(555,root,root) %{_libdir}/vmware/lib/libvmwareui.so.0/libvmwareui.so.0
+%dir %{_libdir}/vmware/lib/libxml2.so.2
+%attr(755,root,root) %{_libdir}/vmware/lib/libxml2.so.2/libxml2.so.2
+
+
+%attr(555,root,root) %{_libdir}/vmware/lib/wrapper-gtk24.sh
 %endif
-%dir %{_libdir}/vmware/serverd
+#%dir %{_libdir}/vmware/serverd
 #%attr(750,root,root) %{_libdir}/vmware/serverd/init.pl
 %{_libdir}/vmware/licenses
 %dir %{_libdir}/vmware/messages
@@ -491,14 +617,137 @@ fi
 %lang(ja) %{_libdir}/vmware/messages/ja
 %{_libdir}/vmware/share
 %{_libdir}/vmware/xkeymap
-#%{_mandir}/man1/vmware.1*
+%dir %{_libdir}/vmware/hostd
+%attr(755,root,root) %{_libdir}/vmware/hostd/*.so
+%{_libdir}/vmware/hostd/locale
+%dir %{_libdir}/vmware/hostd/docroot
+%dir %{_libdir}/vmware/hostd/docroot/client
+%dir %{_libdir}/vmware/hostd/docroot/sdk
+%dir %{_libdir}/vmware/hostd/docroot/downloads
+%{_libdir}/vmware/hostd/docroot/*.png
+%{_libdir}/vmware/hostd/docroot/*.js
+%{_libdir}/vmware/hostd/docroot/*.jpeg
+%{_libdir}/vmware/hostd/docroot/*.html
+%{_libdir}/vmware/hostd/docroot/*.css
+%{_libdir}/vmware/hostd/docroot/en
+%attr(644,root,root) %{_libdir}/vmware/hostd/docroot/client/VMware-viclient.exe
+%attr(644,root,root) %{_libdir}/vmware/hostd/docroot/client/clients-template.xml
+%attr(644,root,root) %{_libdir}/vmware/hostd/docroot/sdk/vim.wsdl
+%attr(644,root,root) %{_libdir}/vmware/hostd/docroot/sdk/vimService.wsdl
+
+%attr(755,root,root) %{_libdir}/vmware/hostd/py
+%attr(755,root,root) %{_libdir}/vmware/hostd/wsdl
+%{_mandir}/man1/vmware.1*
 #%{_mandir}/man3/*
 #%{perl_vendorarch}/VMware
 #%{perl_vendorarch}/auto/VMware
 %attr(1777,root,root) %dir /var/run/vmware
 %attr(751,root,root) %dir /var/log/vmware
-%{_pixmapsdir}/*.png
-%{_desktopdir}/%{name}.desktop
+#%{_pixmapsdir}/*.png
+#%{_desktopdir}/%{name}.desktop
+
+%dir %{_libdir}/vmware/vmacore
+%attr(755,root,root) %{_libdir}/vmware/vmacore/libvmacore.so.*.*
+%attr(755,root,root) %{_libdir}/vmware/vmacore/libvmomi.so.*.*
+
+# belongs to -help
+%{_libdir}/vmware/help
+
+%defattr(444,root,root,755)
+%dir %doc %{_docdir}
+%doc %{_docdir}/[ERo]*
+%defattr(644,root,root,755)
+%doc %dir %{_docdir}/VMwareVix
+%doc %{_docdir}/VMwareVix/lang
+%doc %{_docdir}/VMwareVix/errors
+%doc %{_docdir}/VMwareVix/types
+%attr(444,root,root) %doc %{_docdir}/VMwareVix/*.html
+%dir %{_docdir}/VMwareVix/samples
+%attr(666,root,root) %doc %{_docdir}/VMwareVix/samples/*.c
+
+%defattr(-,root,root,755)
+%dir %{_libdir}/vmware/webAccess
+%defattr(444,root,root,755)
+%dir %{_libdir}/vmware/webAccess/java
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/bin/*
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/bin
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/*.so
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/headless/*.so
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/motif21/*.so
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/native_threads/*.so
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/xawt/*.so
+# yeah. go figure
+%attr(777,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/server/libjsig.so
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/server/libjvm.so
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*.jar
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/ext
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/font*
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/im
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/images
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/zi
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/audio
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/cmm
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/security
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/management
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/oblique-fonts
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/psfont*
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/[A-Z]*
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/.systemPrefs
+%attr(644,root,root) %{_libdir}/vmware/webAccess/vmware*
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/awt_robot
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/gtkhelper
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/jvm.cfg
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/classlist
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/content-types.properties
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/flavormap.properties
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/jvm.hprof.txt
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/logging.properties
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/net.properties
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/sound.properties
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/server/Xusage.txt
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/headless
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/motif21
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/native_threads
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/server
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/xawt
+
+%defattr(444,root,root,755)
+%dir %{_libdir}/vmware/webAccess/tomcat
+%dir %{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/common
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/conf
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/logs
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/server
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/temp
+%defattr(555,root,root,755)
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/bin
+%defattr(644,root,root,755)
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/webapps
+%defattr(444,root,root,755)
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/LICENSE
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/NOTICE
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/RELEASE-NOTES
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/RUNNING.txt
+
+%defattr(444,root,root,755)
+%{_libdir}/vmware/vmware-vix
+
+%defattr(555,root,root,755)
+%{_libdir}/vmware/net-services.sh
+
+%defattr(444,root,root,755)
+%{_libdir}/vmware/modules
+%{_libdir}/vmware/configurator
+
+# -networking stuff
+%attr(555,root,root) %{_bindir}/vmnet-bridge
+%attr(555,root,root) %{_bindir}/vmnet-dhcpd
+%attr(555,root,root) %{_bindir}/vmnet-natd
+%attr(555,root,root) %{_bindir}/vmnet-netifup
+%attr(555,root,root) %{_bindir}/vmnet-sniffer
 
 %files console
 %defattr(644,root,root,755)
@@ -510,9 +759,9 @@ fi
 #%attr(755,root,root) %{_libdir}/vmware-server-console/bin/vmware-remotemks
 #%{_libdir}/vmware-server-console/config
 %if %{with internal_libs}
-%attr(755,root,root) %{_libdir}/vmware-server-console/bin/vmware
-%{_libdir}/vmware-server-console/lib
-%attr(755,root,root) %{_libdir}/vmware-server-console/lib/wrapper-gtk24.sh
+#%attr(755,root,root) %{_libdir}/vmware-server-console/bin/vmware
+#%{_libdir}/vmware-server-console/lib
+#%attr(755,root,root) %{_libdir}/vmware-server-console/lib/wrapper-gtk24.sh
 %endif
 #%dir %{_libdir}/vmware-server-console/messages
 #%{_libdir}/vmware-server-console/messages/en
@@ -534,9 +783,11 @@ fi
 #%attr(755,root,root) %{_libdir}/vmware/bin-debug/vmware-remotemks
 #%attr(755,root,root) %{_libdir}/vmware-server-console/bin-debug/vmware-remotemks
 
+%if 0
 %files help
 %defattr(644,root,root,755)
-%{_libdir}/vmware/help*
+%{_libdir}/vmware/help
+%endif
 
 %files networking
 %defattr(644,root,root,755)

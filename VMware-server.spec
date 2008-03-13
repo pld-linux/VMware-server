@@ -68,7 +68,7 @@ NoSource:	2
 NoSource:	3
 NoSource:	4
 URL:		http://www.vmware.com/
-%{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.20.2}
+%{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.16}
 BuildRequires:	libstdc++-devel
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.438
@@ -177,7 +177,7 @@ VMware SMB utilities.
 %description samba -l pl.UTF-8
 Narzędzia VMware do SMB.
 
-%package -n kernel-misc-vmci
+%package -n kernel%{_alt_kernel}-misc-vmci
 Summary:	Kernel module for VMware Server
 Summary(pl.UTF-8):	Moduł jądra dla VMware Server
 Release:	%{rel}@%{_kernel_ver_str}
@@ -190,13 +190,13 @@ Requires(postun):	%releq_kernel
 %endif
 Provides:	kernel(vmci) = %{version}-%{rel}
 
-%description -n kernel-misc-vmci
+%description -n kernel%{_alt_kernel}-misc-vmci
 Kernel modules for VMware Server - vmci.
 
-%description -n kernel-misc-vmci -l pl.UTF-8
+%description -n kernel%{_alt_kernel}-misc-vmci -l pl.UTF-8
 Moduły jądra dla VMware Server - vmci.
 
-%package -n kernel-misc-vmmon
+%package -n kernel%{_alt_kernel}-misc-vmmon
 Summary:	Kernel module for VMware Server
 Summary(pl.UTF-8):	Moduł jądra dla VMware Server
 Release:	%{rel}@%{_kernel_ver_str}
@@ -209,13 +209,13 @@ Requires(postun):	%releq_kernel
 %endif
 Provides:	kernel(vmmon) = %{version}-%{rel}
 
-%description -n kernel-misc-vmmon
+%description -n kernel%{_alt_kernel}-misc-vmmon
 Kernel modules for VMware Server - vmmon.
 
-%description -n kernel-misc-vmmon -l pl.UTF-8
+%description -n kernel%{_alt_kernel}-misc-vmmon -l pl.UTF-8
 Moduły jądra dla VMware Server - vmmon.
 
-%package -n kernel-misc-vmnet
+%package -n kernel%{_alt_kernel}-misc-vmnet
 Summary:	Kernel module for VMware Server
 Summary(pl.UTF-8):	Moduł jądra dla VMware Server
 Release:	%{rel}@%{_kernel_ver_str}
@@ -228,10 +228,10 @@ Requires(postun):	%releq_kernel
 %endif
 Provides:	kernel(vmnet) = %{version}-%{rel}
 
-%description -n kernel-misc-vmnet
+%description -n kernel%{_alt_kernel}-misc-vmnet
 Kernel modules for VMware Server - vmnet.
 
-%description -n kernel-misc-vmnet -l pl.UTF-8
+%description -n kernel%{_alt_kernel}-misc-vmnet -l pl.UTF-8
 Moduły jądra dla VMware Server - vmnet.
 
 %prep
@@ -467,22 +467,22 @@ if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del vmnet
 fi
 
-%post	-n kernel-misc-vmci
+%post	-n kernel%{_alt_kernel}-misc-vmci
 %depmod %{_kernel_ver}
 
-%postun -n kernel-misc-vmci
+%postun -n kernel%{_alt_kernel}-misc-vmci
 %depmod %{_kernel_ver}
 
-%post	-n kernel-misc-vmmon
+%post	-n kernel%{_alt_kernel}-misc-vmmon
 %depmod %{_kernel_ver}
 
-%postun -n kernel-misc-vmmon
+%postun -n kernel%{_alt_kernel}-misc-vmmon
 %depmod %{_kernel_ver}
 
-%post	-n kernel-misc-vmnet
+%post	-n kernel%{_alt_kernel}-misc-vmnet
 %depmod %{_kernel_ver}
 
-%postun -n kernel-misc-vmnet
+%postun -n kernel%{_alt_kernel}-misc-vmnet
 %depmod %{_kernel_ver}
 
 %if %{with userspace}
@@ -819,15 +819,15 @@ fi
 %endif
 
 %if %{with kernel}
-%files -n kernel-misc-vmci
+%files -n kernel%{_alt_kernel}-misc-vmci
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}/misc/vmci.ko*
 
-%files -n kernel-misc-vmmon
+%files -n kernel%{_alt_kernel}-misc-vmmon
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}/misc/vmmon.ko*
 
-%files -n kernel-misc-vmnet
+%files -n kernel%{_alt_kernel}-misc-vmnet
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}/misc/vmnet.ko*
 %endif

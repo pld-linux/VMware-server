@@ -32,7 +32,7 @@
 %define		subver	63231
 %define		rel	0.4
 %define		urel	115
-%define		ccver	%(%{__cc} -dumpversion)
+%{expand:%%define	ccver	%(%{__cc} -dumpversion)}
 #
 Summary:	VMware Server
 Summary(pl.UTF-8):	VMware Server - wirtualna platforma dla stacji roboczej

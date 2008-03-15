@@ -20,7 +20,7 @@
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
-%bcond_with	kernel		# don't build kernel modules
+%bcond_without	kernel		# don't build kernel modules
 %bcond_without	userspace	# don't build userspace utilities
 %bcond_without	internal_libs	# internal libs stuff
 %bcond_without	doc # package huge docs
@@ -30,7 +30,7 @@
 #
 %define		ver	2.0
 %define		subver	63231
-%define		rel	0.4
+%define		rel	0.5
 %define		urel	115
 %{expand:%%define	ccver	%(%{__cc} -dumpversion)}
 #
@@ -334,6 +334,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d \
 	$RPM_BUILD_ROOT%{_sysconfdir}/vmware{,-server-console} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/{nat,dhcpd} \
+	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/state \
 	$RPM_BUILD_ROOT%{_bindir} \
 	$RPM_BUILD_ROOT%{_sbindir} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware{,-server-console}/bin \
@@ -400,6 +401,28 @@ cp -a doc/* $RPM_BUILD_ROOT%{_docdir}
 cp -a vmware-vix-distrib/doc/VMwareVix $RPM_BUILD_ROOT%{_docdir}
 install -d $RPM_BUILD_ROOT%{_mandir}/man1
 cp -a man/man1/vmware.1 $RPM_BUILD_ROOT%{_mandir}/man1
+
+install installer/services.sh $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware
+ln -s vmware $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware-autostart
+ln -s vmware $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware-core
+ln -s vmware $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware-mgmt
+cat > $RPM_BUILD_ROOT%{_sysconfdir}/vmware/locations <<'EOF'
+file /etc/vmware/locations
+directory /etc/vmware/state
+answer BINDIR /usr/bin
+answer SBINDIR /usr/sbin
+answer LIBDIR /usr/lib/vmware
+answer DOCDIR /usr/share/doc/vmware
+answer MANDIR /usr/share/man
+answer INITDIR /etc/rc.d
+answer INITSCRIPTSDIR /etc/rc.d/init.d
+file /etc/vmware/not_configured 1205422799
+file /etc/rc.d/init.d/vmware 1205422799
+answer INSTALL_CYCLE yes
+file /etc/rc.d/init.d/vmware-mgmt
+file /etc/rc.d/init.d/vmware-core
+file /etc/rc.d/init.d/vmware-autostart
+EOF
 
 rm $RPM_BUILD_ROOT/usr/bin/vmware-uninstall.pl
 rm $RPM_BUILD_ROOT/usr/bin/vmware-vimdump
@@ -490,6 +513,7 @@ fi
 %defattr(444,root,root,755)
 #%doc lib/configurator/vmnet-{dhcpd,nat}.conf
 %dir %{_sysconfdir}/vmware
+%dir %{_sysconfdir}/vmware/state
 %dir %{_sysconfdir}/vmware/hostd
 %dir %{_sysconfdir}/vmware/hostd/env
 %attr(644,root,root) %{_sysconfdir}/vmware/hostd/env/*.xml
@@ -501,6 +525,13 @@ fi
 %dir %{_sysconfdir}/vmware/service
 %attr(644,root,root) %{_sysconfdir}/vmware/service/services.xml
 %attr(555,root,root) %{_sysconfdir}/vmware/installer.sh
+%{_sysconfdir}/vmware/locations
+
+%attr(754,root,root) /etc/rc.d/init.d/vmware
+%attr(754,root,root) /etc/rc.d/init.d/vmware-autostart
+%attr(754,root,root) /etc/rc.d/init.d/vmware-core
+%attr(754,root,root) /etc/rc.d/init.d/vmware-mgmt
+
 %attr(555,root,root) %{_bindir}/vm-support
 #%attr(755,root,root) %{_bindir}/vmware-authtrusted
 #%attr(755,root,root) %{_bindir}/vmware-cmd

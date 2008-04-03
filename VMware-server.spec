@@ -31,7 +31,7 @@
 %define		ver	2.0
 %define		subver	63231
 %define		rel	0.5
-%define		urel	115
+%define		urel	116
 %{expand:%%global	ccver	%(%{__cc} -dumpversion)}
 #
 Summary:	VMware Server
@@ -50,8 +50,8 @@ Source2:	http://download3.vmware.com/software/vmserver/VMware-vix-e.x.p-%{subver
 # NoSource2-md5:	c7d162fb8c805143ea5b40e7f62ef4da
 Source3:	http://download3.vmware.com/software/vmserver/VMware-vix-e.x.p-%{subver}.x86_64.tar.gz
 # NoSource3-md5:	10124d4747e7a579a270376458b7a77b
-Source4:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{urel}.tar.gz
-# NoSource4-md5:	ab33ff7a799fee77f0f4ba5667cd4b9a
+Source4:	http://uruz.org/files/vmware-any-any-update-%{urel}.tgz
+# NoSource4-md5:	3a2e2cb8c3d662190198c77c4a656dbb
 Source5:	%{name}.init
 Source6:	%{name}-vmnet.conf
 Source7:	%{name}.png
@@ -704,7 +704,12 @@ fi
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/bin/*
 %dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/bin
 %dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib
+%ifarch %{ix86}
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386
+%endif
+%ifarch %{x8664}
 %dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64
+%endif
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/*.so
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/headless/*.so
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/motif21/*.so
@@ -726,11 +731,30 @@ fi
 %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/oblique-fonts
 %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/psfont*
 %{_libdir}/vmware/webAccess/java/jre1.5.0_07/[A-Z]*
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/.systemPrefs
 %attr(644,root,root) %{_libdir}/vmware/webAccess/vmware*
+%ifarch %{ix86}
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/awt_robot
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/gtkhelper
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/jvm.cfg
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/server/Xusage.txt
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/headless
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/motif21
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/native_threads
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/server
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/xawt
+%endif
+%ifarch %{x8664}
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/.systemPrefs
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/awt_robot
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/gtkhelper
 %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/jvm.cfg
+%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/server/Xusage.txt
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/headless
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/motif21
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/native_threads
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/server
+%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/xawt
+%endif
 %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/classlist
 %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/content-types.properties
 %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/flavormap.properties
@@ -738,12 +762,6 @@ fi
 %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/logging.properties
 %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/net.properties
 %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/sound.properties
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/server/Xusage.txt
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/headless
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/motif21
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/native_threads
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/server
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/xawt
 
 %defattr(444,root,root,755)
 %dir %{_libdir}/vmware/webAccess/tomcat

@@ -1,5 +1,5 @@
---- ../BUILD/vmware-server-distrib/bin/vmware-config.pl	2007-11-09 14:22:03.000000000 +0200
-+++ /usr/bin/vmware-config.pl	2008-04-07 14:56:57.510937518 +0300
+--- vmware-server-distrib/bin/vmware-config.pl	2007-11-09 14:22:03.000000000 +0200
++++ vmware-server-distrib/bin/vmware-config.pl	2008-04-07 14:56:57.510937518 +0300
 @@ -7499,6 +7500,7 @@
    my $inetd_conf  = "/etc/inetd.conf";
    my $xinetd_conf = "/etc/xinetd.conf";

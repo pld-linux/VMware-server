@@ -534,7 +534,7 @@ fi
 %dir %{_sysconfdir}/vmware/service
 %attr(644,root,root) %{_sysconfdir}/vmware/service/services.xml
 %attr(555,root,root) %{_sysconfdir}/vmware/installer.sh
-%{_sysconfdir}/vmware/locations
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/locations
 
 %attr(754,root,root) /etc/rc.d/init.d/vmware
 %attr(754,root,root) /etc/rc.d/init.d/vmware-autostart

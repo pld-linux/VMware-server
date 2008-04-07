@@ -5,25 +5,7 @@
 # - make use rc-inetd style config
 # - switch to proper %{_libdir} when done for 64bit arch
 # - sane permissions
-#
-# This doesn't work at all yet. I don't know if the management interface is needed
-# (bundling apache seems like a sooooooooo great idea). Maybe it is possible to
-# setup the server part by hand. The perl module in perl/control.tar needs to
-# be packaged (vmware-cmd requires that). Something needs to be done with
-# the authd (inetd integration is needed I guess).
-#
-# The modules from any-any upgrade are too old (I used the ones comming with VMw-S).
-#
-# It builds on amd64, I have changed the networking package not to require the main package
-# so it can be installed outside 32bit chroot.
-#
-# But hey, it's at least free ;-)
-#
-# I probably won't have time to work on this, switching to vmware-player.
-# TODO:
-# problem with libsexy/libsexymm:
-# ln -s /usr/lib/libsexy.so.2 /usr/lib/libsexy.so.1
-# ln -s /usr/lib/libsexymm.so.2 /usr/lib/libsexymm.so.1
+# - package webAccess elsewhere, seems noarch mostly (but if using system pkgs for java/tomcat leave it still huge)
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
@@ -37,8 +19,7 @@
 #
 %define		ver	2.0
 %define		subver	84186
-%define		rel	0.1
-%define		urel	116
+%define		rel	0.3
 %{expand:%%global	ccver	%(%{__cc} -dumpversion)}
 #
 Summary:	VMware Server
@@ -57,8 +38,6 @@ Source2:	http://download3.vmware.com/software/vmserver/VMware-vix-e.x.p-%{subver
 # NoSource2-md5:	d81db3079785a7454902aed222e611ad
 Source3:	http://download3.vmware.com/software/vmserver/VMware-vix-e.x.p-%{subver}.x86_64.tar.gz
 # NoSource3-md5:	bc7bdf81d14887861b4f5413e78fd539
-Source4:	http://uruz.org/files/vmware-any-any-update-%{urel}.tgz
-# NoSource4-md5:	3a2e2cb8c3d662190198c77c4a656dbb
 Source5:	%{name}.init
 Source6:	%{name}-vmnet.conf
 Source7:	%{name}.png
@@ -67,23 +46,20 @@ Source9:	%{name}-nat.conf
 Source10:	%{name}-dhcpd.conf
 Source11:	%{name}-libs
 Source12:	%{name}-authd.rc-inetd
-Patch0:		%{name}-Makefile.patch
-Patch1:		%{name}-run_script.patch
-Patch2:		%{name}-init_pl.patch
-Patch3:		%{name}-config-rc-inetd.patch
-Patch4:		%{name}-config-kernel.patch
-Patch5:		%{name}-initscript.patch
+Patch0:		%{name}-config-rc-inetd.patch
+Patch1:		%{name}-config-kernel.patch
+Patch2:		%{name}-initscript.patch
 NoSource:	0
 NoSource:	1
 NoSource:	2
 NoSource:	3
-NoSource:	4
 URL:		http://www.vmware.com/
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.16}
 BuildRequires:	libstdc++-devel
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.449
 BuildRequires:	sed >= 4.0
+Requires:	%{name}-isoimages = %{version}
 #Requires:	libgnomecanvasmm
 #Requires:	libsexy
 #Requires:	libsexymm
@@ -261,7 +237,6 @@ Kernel modules for VMware Server - vsock.
 %description -n kernel%{_alt_kernel}-misc-vsock -l pl.UTF-8
 Moduły jądra dla VMware Server - vsock.
 
-
 %prep
 %ifarch %{ix86}
 %setup -q -T -n vmware-server-distrib -b0 %{?with_userspace:-a2}
@@ -270,9 +245,11 @@ Moduły jądra dla VMware Server - vsock.
 %setup -q -T -n vmware-server-distrib -b1 %{?with_userspace:-a3}
 %endif
 
-%patch3 -p1
-#%patch4 -p1
-#%patch5 -p1
+rm -rf lib/isoimages # packaged by %{name}-isoimages.spec
+
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
 
 cd lib/modules
 %{__tar} xf source/vmci.tar
@@ -287,51 +264,9 @@ cd -
 
 %{__gzip} -d man/man1/vmware.1.gz
 
-%if 0
-tar zxf vmware-mui-distrib/console-distrib/%{name}-console-%{ver}-%{subver}.tar.gz
-cp vmware-any-any-update%{urel}/{vmmon,vmnet}.tar lib/modules/source/
-cd lib/modules/source
-tar xf vmmon.tar
-tar xf vmnet.tar
-#%patch0 -p0
-cp -a vmmon-only{,.clean}
-cp -a vmnet-only{,.clean}
-cd -
-%patch1 -p1
-%patch2 -p0
-tar xf lib/perl/control.tar
-%endif
+find '(' -name '*~' -o -name '*.orig' ')' -print0 | xargs -0 -r -l512 rm -f
 
 %build
-
-%if 0
-cd vmware-any-any-update%{urel}
-chmod u+w ../lib/bin/vmware-vmx ../lib/bin-debug/vmware-vmx ../bin/vmnet-bridge
-%endif
-
-%if 0
-rm -f update
-%{__cc} %{rpmldflags} %{rpmcflags} -o update update.c
-./update vmx		../lib/bin/vmware-vmx
-./update vmxdebug	../lib/bin-debug/vmware-vmx
-./update bridge		../bin/vmnet-bridge
-cd -
-%endif
-
-%if %{with userspace}
-%if 0
-	cd control-only
-	perl Makefile.PL
-	sed -i "s:^INSTALLSITEARCH.*$:INSTALLSITEARCH = %{perl_vendorarch}:" Makefile
-	sed -i "s:^INSTALLSITELIB.*$:INSTALLSITELIB = %{perl_vendorlib}:" Makefile
-	sed -i "s:^INSTALLSITEMAN1DIR.*$:INSTALLSITEMAN1DIR = %{_mandir}/man1:" Makefile
-	sed -i "s:^INSTALLSITEMAN3DIR.*$:INSTALLSITEMAN3DIR = %{_mandir}/man3:" Makefile
-
-	%{__make}
-	cd ..
-%endif
-%endif
-
 %if %{with kernel}
 cd lib/modules
 
@@ -361,45 +296,10 @@ EOF
 
 cp -a vmci-only/Module.symvers vsock-only
 %build_kernel_modules -C vsock-only -m vsock SRCROOT=$PWD VM_KBUILD=26 VM_CCVER=%{ccver} -c
-
 %endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
-
-%if %{with userspace}
-install -d \
-	$RPM_BUILD_ROOT%{_sysconfdir}/vmware{,-server-console} \
-	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/{nat,dhcpd} \
-	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/state \
-	$RPM_BUILD_ROOT%{_bindir} \
-	$RPM_BUILD_ROOT%{_sbindir} \
-	$RPM_BUILD_ROOT%{_libdir}/vmware{,-server-console}/bin \
-	$RPM_BUILD_ROOT%{_mandir} \
-	$RPM_BUILD_ROOT%{_pixmapsdir} \
-	$RPM_BUILD_ROOT%{_desktopdir} \
-	$RPM_BUILD_ROOT/etc/rc.d/init.d \
-	$RPM_BUILD_ROOT/var/{log,run}/vmware
-
-%if 0
-	cd control-only
-	%{__make} install \
-		DESTDIR=$RPM_BUILD_ROOT
-	cd ..
-%endif
-
-%if 0
-	# copy other required perl modules
-	cp -a lib/perl5/site_perl/5.005/VMware $RPM_BUILD_ROOT%{perl_vendorarch}
-	cp -a lib/perl5/site_perl/5.005/i386-linux/VMware/VmdbPerl $RPM_BUILD_ROOT%{perl_vendorarch}/VMware
-	cp -a lib/perl5/site_perl/5.005/i386-linux/VMware/{HConfig,VmdbPerl}.pm $RPM_BUILD_ROOT%{perl_vendorarch}/VMware
-	cp -a lib/perl5/site_perl/5.005/i386-linux/auto/VMware/{HConfig,VmdbPerl} $RPM_BUILD_ROOT%{perl_vendorarch}/auto/VMware
-
-	# remove unecessary files
-	rm -f $RPM_BUILD_ROOT%{perl_vendorarch}/auto/VMware/{HConfig,VmdbPerl,VmPerl}/.{exists,packlist}
-%endif
-%endif
-
 %if %{with kernel}
 %install_kernel_modules -m lib/modules/vmci-only/vmci -d misc
 %install_kernel_modules -m lib/modules/vmmon-only/vmmon -d misc
@@ -408,6 +308,19 @@ install -d \
 %endif
 
 %if %{with userspace}
+install -d \
+	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/{nat,dhcpd} \
+	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/state \
+	$RPM_BUILD_ROOT%{_bindir} \
+	$RPM_BUILD_ROOT%{_sbindir} \
+	$RPM_BUILD_ROOT%{_libdir}/vmware/bin \
+	$RPM_BUILD_ROOT%{_mandir} \
+	$RPM_BUILD_ROOT%{_pixmapsdir} \
+	$RPM_BUILD_ROOT%{_desktopdir} \
+	$RPM_BUILD_ROOT/etc/rc.d/init.d \
+	$RPM_BUILD_ROOT/var/{log,run}/vmware \
+	$RPM_BUILD_ROOT/var/lib/vmware/{hostd,"Virtual Machines"}
+
 install %{SOURCE5} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmnet
 install %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet.conf
 install %{SOURCE7} $RPM_BUILD_ROOT%{_pixmapsdir}
@@ -426,8 +339,6 @@ cp -a lib/hostd $RPM_BUILD_ROOT%{_libdir}/vmware
 cp -a vmware-vix $RPM_BUILD_ROOT%{_libdir}/vmware
 cp -a lib/vmacore $RPM_BUILD_ROOT%{_libdir}/vmware
 cp -a lib/net-services.sh $RPM_BUILD_ROOT%{_libdir}/vmware
-cp -a lib/modules $RPM_BUILD_ROOT%{_libdir}/vmware
-rm -rf $RPM_BUILD_ROOT%{_libdir}/vmware/modules/*-only
 cp -a lib/configurator $RPM_BUILD_ROOT%{_libdir}/vmware
 cp -a %{SOURCE12} $RPM_BUILD_ROOT%{_libdir}/vmware/configurator/authd-rc-inetd.conf
 cp -a etc/hostd $RPM_BUILD_ROOT/etc/vmware/hostd
@@ -455,12 +366,7 @@ answer DOCDIR /usr/share/doc/vmware
 answer MANDIR /usr/share/man
 answer INITDIR /etc/rc.d
 answer INITSCRIPTSDIR /etc/rc.d/init.d
-file /etc/vmware/not_configured 1205422799
-file /etc/rc.d/init.d/vmware 1205422799
 answer INSTALL_CYCLE yes
-file /etc/rc.d/init.d/vmware-mgmt
-file /etc/rc.d/init.d/vmware-core
-file /etc/rc.d/init.d/vmware-autostart
 EOF
 
 rm $RPM_BUILD_ROOT/usr/bin/vmware-uninstall.pl
@@ -468,52 +374,15 @@ rm $RPM_BUILD_ROOT/usr/bin/vmware-vimdump
 rm $RPM_BUILD_ROOT/usr/share/applications/VMware-server.desktop
 rm $RPM_BUILD_ROOT/usr/share/pixmaps/VMware-server.png
 
-%if 0
-sed -e '
-s@%sitearch%@%{perl_sitearch}@g;
-s@%sitelib%@%{perl_sitelib}@g;
-s@%vendorarch%@%{perl_vendorarch}@g;
-s@%vendorlib%@%{perl_vendorlib}@g;
-s@%archlib%@%{perl_archlib}@g;
-s@%privlib%@%{perl_privlib}@g;' < lib/serverd/init.pl.default > $RPM_BUILD_ROOT%{_libdir}/vmware/serverd/init.pl
-%endif
-
-cp -a	lib/{config,help,isoimages,licenses,messages,share,xkeymap} \
+cp -a	lib/{config,help,licenses,messages,share,xkeymap} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware
-
-%if 0
-cp -a	vmware-server-console-distrib/lib/{bin-debug,config,help*,messages,share,xkeymap} \
-	$RPM_BUILD_ROOT%{_libdir}/vmware-server-console
-
-install vmware-server-console-distrib/lib/bin/vmware-remotemks $RPM_BUILD_ROOT%{_libdir}/vmware-server-console/bin
-
-cp -a	vmware-server-console-distrib/man/* man/* $RPM_BUILD_ROOT%{_mandir}
-gunzip	$RPM_BUILD_ROOT%{_mandir}/man?/*.gz
-%endif
-
-cat > $RPM_BUILD_ROOT%{_sysconfdir}/vmware-server-console/locations <<EOF
-VM_BINDIR=%{_bindir}
-VM_LIBDIR=%{_libdir}/vmware-server-console
-EOF
 
 %if %{with internal_libs}
 install bin/vmware $RPM_BUILD_ROOT%{_bindir}
 install lib/bin/* $RPM_BUILD_ROOT%{_libdir}/vmware/bin
-#install lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware/bin
 cp -a	lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware
-
-%if 0
-install vmware-server-console-distrib/bin/vmware-server-console $RPM_BUILD_ROOT%{_bindir}
-install vmware-server-console-distrib/lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware-server-console/bin
-cp -a	vmware-server-console-distrib/lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware-server-console
 %endif
 
-%else
-%if 0
-install lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
-install vmware-server-console-distrib/lib/bin/vmware-server-console $RPM_BUILD_ROOT%{_bindir}
-%endif
-%endif
 %endif
 
 %clean
@@ -556,7 +425,6 @@ fi
 %if %{with userspace}
 %files
 %defattr(444,root,root,755)
-#%doc lib/configurator/vmnet-{dhcpd,nat}.conf
 %dir %{_sysconfdir}/vmware
 %dir %{_sysconfdir}/vmware/state
 %dir %{_sysconfdir}/vmware/hostd
@@ -572,20 +440,25 @@ fi
 %attr(555,root,root) %{_sysconfdir}/vmware/installer.sh
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/locations
 
+# TODO: vmnet
+%dir %{_sysconfdir}/vmware/vmnet8
+%dir %{_sysconfdir}/vmware/vmnet8/dhcpd
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
+%dir %{_sysconfdir}/vmware/vmnet8/nat
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/nat/nat.conf
+%verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases*
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet.conf
+%attr(754,root,root) /etc/rc.d/init.d/vmnet
+# TODO: vmnet
+
 %attr(754,root,root) /etc/rc.d/init.d/vmware
 %attr(754,root,root) /etc/rc.d/init.d/vmware-autostart
 %attr(754,root,root) /etc/rc.d/init.d/vmware-core
 %attr(754,root,root) /etc/rc.d/init.d/vmware-mgmt
 
 %attr(555,root,root) %{_bindir}/vm-support
-#%attr(755,root,root) %{_bindir}/vmware-authtrusted
-#%attr(755,root,root) %{_bindir}/vmware-cmd
-#%attr(755,root,root) %{_bindir}/vmware-loop
-#%attr(755,root,root) %{_bindir}/vmware-mount.pl
 %attr(555,root,root) %{_bindir}/vmware-config.pl
 %attr(555,root,root) %{_bindir}/vmware-mount
-#%attr(555,root,root) %{_bindir}/vmware-uninstall.pl
-#%attr(555,root,root) %{_bindir}/vmware-vimdump
 %attr(555,root,root) %{_bindir}/vmware-vimsh
 %attr(555,root,root) %{_bindir}/vmware-vsh
 %attr(555,root,root) %{_bindir}/vmware-watchdog
@@ -598,12 +471,10 @@ fi
 # warning: SUID !!!
 %attr(555,root,root) %{_libdir}/vmware/bin/vmware-vmx
 %{_libdir}/vmware/config
-%{_libdir}/vmware/isoimages
 %if %{with internal_libs}
 %attr(555,root,root) %{_bindir}/vmware
 # - XXX -networking
 %attr(4555,root,root) %{_bindir}/vmware-ping
-#%attr(755,root,root) %{_libdir}/vmware/bin/vmware
 %attr(555,root,root) %{_libdir}/vmware/bin/openssl
 %attr(555,root,root) %{_libdir}/vmware/bin/vmrun
 %attr(755,root,root) %{_libdir}/vmware/bin/vmware-hostd
@@ -639,11 +510,8 @@ fi
 
 %attr(555,root,root) %{_libdir}/vmware/lib/wrapper-gtk24.sh
 %endif
-#%dir %{_libdir}/vmware/serverd
-#%attr(750,root,root) %{_libdir}/vmware/serverd/init.pl
 %{_libdir}/vmware/licenses
 %dir %{_libdir}/vmware/messages
-#%{_libdir}/vmware/messages/en
 %lang(ja) %{_libdir}/vmware/messages/ja
 %{_libdir}/vmware/share
 %{_libdir}/vmware/xkeymap
@@ -668,9 +536,6 @@ fi
 %attr(755,root,root) %{_libdir}/vmware/hostd/py
 %attr(755,root,root) %{_libdir}/vmware/hostd/wsdl
 %{_mandir}/man1/vmware.1*
-#%{_mandir}/man3/*
-#%{perl_vendorarch}/VMware
-#%{perl_vendorarch}/auto/VMware
 %attr(1777,root,root) %dir /var/run/vmware
 %attr(751,root,root) %dir /var/log/vmware
 #%{_pixmapsdir}/*.png
@@ -786,7 +651,6 @@ fi
 %{_libdir}/vmware/net-services.sh
 
 %defattr(444,root,root,755)
-%{_libdir}/vmware/modules
 %{_libdir}/vmware/configurator
 
 # -networking stuff
@@ -796,45 +660,23 @@ fi
 %attr(555,root,root) %{_bindir}/vmnet-netifup
 %attr(555,root,root) %{_bindir}/vmnet-sniffer
 
+%if 0
 %files console
 %defattr(644,root,root,755)
 %dir %{_sysconfdir}/vmware-server-console
 %{_sysconfdir}/vmware-server-console/locations
-#%attr(755,root,root) %{_bindir}/vmware-server-console
 %dir %{_libdir}/vmware-server-console
 %dir %{_libdir}/vmware-server-console/bin
-#%attr(755,root,root) %{_libdir}/vmware-server-console/bin/vmware-remotemks
-#%{_libdir}/vmware-server-console/config
-%if %{with internal_libs}
-#%attr(755,root,root) %{_libdir}/vmware-server-console/bin/vmware
-#%{_libdir}/vmware-server-console/lib
-#%attr(755,root,root) %{_libdir}/vmware-server-console/lib/wrapper-gtk24.sh
-%endif
-#%dir %{_libdir}/vmware-server-console/messages
-#%{_libdir}/vmware-server-console/messages/en
-#%lang(ja) %{_libdir}/vmware-server-console/messages/ja
-#%{_libdir}/vmware-server-console/share
-#%{_libdir}/vmware-server-console/xkeymap
-#%{_mandir}/man1/vmware-server-console.1*
 
 %files console-help
 %defattr(644,root,root,755)
-#%{_libdir}/vmware-server-console/help*
 
 %files debug
 %defattr(644,root,root,755)
-#%dir %{_libdir}/vmware/bin-debug
-# warning: SUID !!!
-#%attr(4755,root,root) %{_libdir}/vmware/bin-debug/vmware-vmx
-#%dir %{_libdir}/vmware-server-console/bin-debug
-#%attr(755,root,root) %{_libdir}/vmware/bin-debug/vmware-remotemks
-#%attr(755,root,root) %{_libdir}/vmware-server-console/bin-debug/vmware-remotemks
 
-%if 0
 %files help
 %defattr(644,root,root,755)
 %{_libdir}/vmware/help
-%endif
 
 %files networking
 %defattr(644,root,root,755)
@@ -846,14 +688,7 @@ fi
 %attr(755,root,root) %{_bindir}/vmnet-netifup
 %attr(755,root,root) %{_bindir}/vmnet-sniffer
 %attr(755,root,root) %{_bindir}/vmware-ping
-%dir %{_sysconfdir}/vmware/vmnet8
-%dir %{_sysconfdir}/vmware/vmnet8/dhcpd
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
-%dir %{_sysconfdir}/vmware/vmnet8/nat
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/nat/nat.conf
-%verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases*
 
-%if 0
 %files samba
 %defattr(644,root,root,755)
 %doc lib/configurator/vmnet-smb.conf

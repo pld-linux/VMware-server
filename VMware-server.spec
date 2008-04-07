@@ -1,3 +1,10 @@
+# TODO
+# - make vmware-config.pl work
+# - put things back to subpackages
+# - use system java, tomcat, etc packages
+# - make use rc-inetd style config
+# - switch to proper %{_libdir} when done for 64bit arch
+# - sane permissions
 #
 # This doesn't work at all yet. I don't know if the management interface is needed
 # (bundling apache seems like a sooooooooo great idea). Maybe it is possible to
@@ -29,8 +36,8 @@
 %include	/usr/lib/rpm/macros.perl
 #
 %define		ver	2.0
-%define		subver	63231
-%define		rel	0.5
+%define		subver	84186
+%define		rel	0.1
 %define		urel	116
 %{expand:%%global	ccver	%(%{__cc} -dumpversion)}
 #
@@ -43,13 +50,13 @@ License:	custom, non-distributable
 Group:		Applications/Emulators
 # http://www.vmware.com/beta/server/download.html
 Source0:	http://download3.vmware.com/software/vmserver/%{name}-e.x.p-%{subver}.i386.tar.gz
-# NoSource0-md5:	853247ff0e313f34bd0c3052de8e2c28
+# NoSource0-md5:	30f20c55a76ba46543df0e80bd21affc
 Source1:	http://download3.vmware.com/software/vmserver/%{name}-e.x.p-%{subver}.x86_64.tar.gz
-# NoSource1-md5:	0d36ae02640d913251fd11918f798da3
+# NoSource1-md5:	31dcec2889bcac228f76f0914e89469b
 Source2:	http://download3.vmware.com/software/vmserver/VMware-vix-e.x.p-%{subver}.i386.tar.gz
-# NoSource2-md5:	c7d162fb8c805143ea5b40e7f62ef4da
+# NoSource2-md5:	d81db3079785a7454902aed222e611ad
 Source3:	http://download3.vmware.com/software/vmserver/VMware-vix-e.x.p-%{subver}.x86_64.tar.gz
-# NoSource3-md5:	10124d4747e7a579a270376458b7a77b
+# NoSource3-md5:	bc7bdf81d14887861b4f5413e78fd539
 Source4:	http://uruz.org/files/vmware-any-any-update-%{urel}.tgz
 # NoSource4-md5:	3a2e2cb8c3d662190198c77c4a656dbb
 Source5:	%{name}.init
@@ -75,7 +82,7 @@ URL:		http://www.vmware.com/
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.16}
 BuildRequires:	libstdc++-devel
 BuildRequires:	rpm-perlprov
-BuildRequires:	rpmbuild(macros) >= 1.438
+BuildRequires:	rpmbuild(macros) >= 1.449
 BuildRequires:	sed >= 4.0
 #Requires:	libgnomecanvasmm
 #Requires:	libsexy
@@ -192,7 +199,6 @@ Requires:	dev >= 2.9.0-7
 %requires_releq_kernel
 Requires(postun):	%releq_kernel
 %endif
-Provides:	kernel(vmci) = %{version}-%{rel}
 
 %description -n kernel%{_alt_kernel}-misc-vmci
 Kernel modules for VMware Server - vmci.
@@ -211,7 +217,6 @@ Requires:	dev >= 2.9.0-7
 %requires_releq_kernel
 Requires(postun):	%releq_kernel
 %endif
-Provides:	kernel(vmmon) = %{version}-%{rel}
 
 %description -n kernel%{_alt_kernel}-misc-vmmon
 Kernel modules for VMware Server - vmmon.
@@ -230,13 +235,32 @@ Requires:	dev >= 2.9.0-7
 %requires_releq_kernel
 Requires(postun):	%releq_kernel
 %endif
-Provides:	kernel(vmnet) = %{version}-%{rel}
 
 %description -n kernel%{_alt_kernel}-misc-vmnet
 Kernel modules for VMware Server - vmnet.
 
 %description -n kernel%{_alt_kernel}-misc-vmnet -l pl.UTF-8
 Moduły jądra dla VMware Server - vmnet.
+
+%package -n kernel%{_alt_kernel}-misc-vsock
+Summary:	Kernel module for VMware Server
+Summary(pl.UTF-8):	Moduł jądra dla VMware Server
+Release:	%{rel}@%{_kernel_ver_str}
+Group:		Base/Kernel
+Requires(post,postun):	/sbin/depmod
+Requires:	dev >= 2.9.0-7
+%if %{with dist_kernel}
+%requires_releq_kernel
+Requires(postun):	%releq_kernel
+%endif
+Requires:	kernel%{_alt_kernel}-misc-vmci = %{version}-%{rel}
+
+%description -n kernel%{_alt_kernel}-misc-vsock
+Kernel modules for VMware Server - vsock.
+
+%description -n kernel%{_alt_kernel}-misc-vsock -l pl.UTF-8
+Moduły jądra dla VMware Server - vsock.
+
 
 %prep
 %ifarch %{ix86}
@@ -247,17 +271,18 @@ Moduły jądra dla VMware Server - vmnet.
 %endif
 
 %patch3 -p1
-%patch4 -p1
-%patch5 -p1
+#%patch4 -p1
+#%patch5 -p1
 
 cd lib/modules
 %{__tar} xf source/vmci.tar
 %{__tar} xf source/vmmon.tar
 %{__tar} xf source/vmnet.tar
+%{__tar} xf source/vsock.tar
 mv vmmon-only/linux/driver.c{,.dist}
 mv vmnet-only/hub.c{,.dist}
 mv vmnet-only/driver.c{,.dist}
-#rm -rf binary # unusable
+rm -rf binary # unusable
 cd -
 
 %{__gzip} -d man/man1/vmware.1.gz
@@ -333,6 +358,10 @@ else
 	cat driver.c.dist > driver.c
 fi
 EOF
+
+cp -a vmci-only/Module.symvers vsock-only
+%build_kernel_modules -C vsock-only -m vsock SRCROOT=$PWD VM_KBUILD=26 VM_CCVER=%{ccver} -c
+
 %endif
 
 %install
@@ -375,6 +404,7 @@ install -d \
 %install_kernel_modules -m lib/modules/vmci-only/vmci -d misc
 %install_kernel_modules -m lib/modules/vmmon-only/vmmon -d misc
 %install_kernel_modules -m lib/modules/vmnet-only/vmnet -d misc
+%install_kernel_modules -m lib/modules/vsock-only/vsock -d misc
 %endif
 
 %if %{with userspace}
@@ -517,6 +547,12 @@ fi
 %postun -n kernel%{_alt_kernel}-misc-vmnet
 %depmod %{_kernel_ver}
 
+%post	-n kernel%{_alt_kernel}-misc-vsock
+%depmod %{_kernel_ver}
+
+%postun -n kernel%{_alt_kernel}-misc-vsock
+%depmod %{_kernel_ver}
+
 %if %{with userspace}
 %files
 %defattr(444,root,root,755)
@@ -569,7 +605,6 @@ fi
 %attr(4555,root,root) %{_bindir}/vmware-ping
 #%attr(755,root,root) %{_libdir}/vmware/bin/vmware
 %attr(555,root,root) %{_libdir}/vmware/bin/openssl
-%attr(555,root,root) %{_libdir}/vmware/bin/vmplayer
 %attr(555,root,root) %{_libdir}/vmware/bin/vmrun
 %attr(755,root,root) %{_libdir}/vmware/bin/vmware-hostd
 %attr(755,root,root) %{_libdir}/vmware/bin/vmware-hostd-dynamic
@@ -581,54 +616,12 @@ fi
 %attr(755,root,root) %{_libdir}/vmware/bin/vmware-vsh
 
 %dir %{_libdir}/vmware/lib
-%{_libdir}/vmware/lib/libXau.so.6
-%{_libdir}/vmware/lib/libXcursor.so.1
-%{_libdir}/vmware/lib/libXdmcp.so.6
-%{_libdir}/vmware/lib/libXfixes.so.3
-%{_libdir}/vmware/lib/libXft.so.2
-%{_libdir}/vmware/lib/libXinerama.so.1
-%{_libdir}/vmware/lib/libXrandr.so.2
-%{_libdir}/vmware/lib/libXrender.so.1
-%{_libdir}/vmware/lib/libart_lgpl_2.so.2
-%{_libdir}/vmware/lib/libatk-1.0.so.0
-%{_libdir}/vmware/lib/libatkmm-1.6.so.1
-%{_libdir}/vmware/lib/libcairo.so.2
-%{_libdir}/vmware/lib/libcairomm-1.0.so.1
 %{_libdir}/vmware/lib/libcrypto.so.0.9.7
-%{_libdir}/vmware/lib/libcurl.so.3
 %{_libdir}/vmware/lib/libcurl.so.4
-%{_libdir}/vmware/lib/libfontconfig.so.1
-%{_libdir}/vmware/lib/libfreetype.so.6
-%{_libdir}/vmware/lib/libgdk-x11-2.0.so.0
-%{_libdir}/vmware/lib/libgdk_pixbuf-2.0.so.0
-%{_libdir}/vmware/lib/libgdkmm-2.4.so.1
 %{_libdir}/vmware/lib/libglib-2.0.so.0
-%{_libdir}/vmware/lib/libglibmm-2.4.so.1
-%{_libdir}/vmware/lib/libglibmm_generate_extra_defs-2.4.so.1
-%{_libdir}/vmware/lib/libgmodule-2.0.so.0
 %{_libdir}/vmware/lib/libgobject-2.0.so.0
 %{_libdir}/vmware/lib/libgthread-2.0.so.0
-%{_libdir}/vmware/lib/libgtk-x11-2.0.so.0
-%{_libdir}/vmware/lib/libgtkmm-2.4.so.1
-%{_libdir}/vmware/lib/libpango-1.0.so.0
-%{_libdir}/vmware/lib/libpangocairo-1.0.so.0
-%{_libdir}/vmware/lib/libpangoft2-1.0.so.0
-%{_libdir}/vmware/lib/libpangomm-1.4.so.1
-%{_libdir}/vmware/lib/libpangox-1.0.so.0
-%{_libdir}/vmware/lib/libpangoxft-1.0.so.0
-%{_libdir}/vmware/lib/librsvg-2.so.2
-%{_libdir}/vmware/lib/libsexy.so.2
-%{_libdir}/vmware/lib/libsexymm.so.2
-%{_libdir}/vmware/lib/libsigc-2.0.so.0
 %{_libdir}/vmware/lib/libssl.so.0.9.7
-%{_libdir}/vmware/lib/libview.so.2
-%{_libdir}/vmware/lib/libxmlrpc.so.3
-%{_libdir}/vmware/lib/libxmlrpc_client.so.3
-%{_libdir}/vmware/lib/libxmlrpc_util.so.3
-%{_libdir}/vmware/lib/libxmlrpc_xmlparse.so.3
-%{_libdir}/vmware/lib/libxmlrpc_xmltok.so.3
-
-
 %dir %{_libdir}/vmware/lib/libexpat.so.0
 %attr(755,root,root) %{_libdir}/vmware/lib/libexpat.so.0/libexpat.so.0
 %dir %{_libdir}/vmware/lib/libgcc_s.so.1
@@ -639,13 +632,10 @@ fi
 %attr(755,root,root) %{_libdir}/vmware/lib/libpng12.so.0/libpng12.so.0
 %dir %{_libdir}/vmware/lib/libstdc++.so.6
 %attr(755,root,root) %{_libdir}/vmware/lib/libstdc++.so.6/libstdc++.so.6
-%dir %{_libdir}/vmware/lib/libvmwarebase.so.0
-%attr(555,root,root) %{_libdir}/vmware/lib/libvmwarebase.so.0/libvmwarebase.so.0
-%dir %{_libdir}/vmware/lib/libvmwareui.so.0
-%attr(555,root,root) %{_libdir}/vmware/lib/libvmwareui.so.0/libvmwareui.so.0
 %dir %{_libdir}/vmware/lib/libxml2.so.2
 %attr(755,root,root) %{_libdir}/vmware/lib/libxml2.so.2/libxml2.so.2
-
+%dir %{_libdir}/vmware/lib/libpixops.so.2.0.2
+%attr(755,root,root) %{_libdir}/vmware/lib/libpixops.so.2.0.2/libpixops.so.2.0.2
 
 %attr(555,root,root) %{_libdir}/vmware/lib/wrapper-gtk24.sh
 %endif
@@ -702,6 +692,7 @@ fi
 %doc %{_docdir}/VMwareVix/errors
 %doc %{_docdir}/VMwareVix/types
 %attr(444,root,root) %doc %{_docdir}/VMwareVix/*.html
+%attr(444,root,root) %doc %{_docdir}/VMwareVix/*.css
 %dir %{_docdir}/VMwareVix/samples
 %attr(666,root,root) %doc %{_docdir}/VMwareVix/samples/*.c
 
@@ -709,86 +700,84 @@ fi
 %dir %{_libdir}/vmware/webAccess
 %defattr(444,root,root,755)
 %dir %{_libdir}/vmware/webAccess/java
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/bin/*
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/bin
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib
+%dir %{_libdir}/vmware/webAccess/java/jre*
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/bin/*
+%dir %{_libdir}/vmware/webAccess/java/jre*/bin
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib
 %ifarch %{ix86}
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386
 %endif
 %ifarch %{x8664}
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64
 %endif
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/*.so
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/headless/*.so
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/motif21/*.so
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/native_threads/*.so
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/xawt/*.so
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/*.so
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/headless/*.so
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/motif21/*.so
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/native_threads/*.so
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/xawt/*.so
 # yeah. go figure
-%attr(777,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/server/libjsig.so
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*/server/libjvm.so
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/*.jar
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/ext
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/font*
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/im
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/images
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/zi
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/audio
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/cmm
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/security
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/management
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/oblique-fonts
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/psfont*
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/[A-Z]*
+%attr(777,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/server/libjsig.so
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/server/libjvm.so
+%{_libdir}/vmware/webAccess/java/jre*/lib/*.jar
+%{_libdir}/vmware/webAccess/java/jre*/lib/ext
+%{_libdir}/vmware/webAccess/java/jre*/lib/font*
+%{_libdir}/vmware/webAccess/java/jre*/lib/im
+%{_libdir}/vmware/webAccess/java/jre*/lib/images
+%{_libdir}/vmware/webAccess/java/jre*/lib/zi
+%{_libdir}/vmware/webAccess/java/jre*/lib/audio
+%{_libdir}/vmware/webAccess/java/jre*/lib/cmm
+%{_libdir}/vmware/webAccess/java/jre*/lib/security
+%{_libdir}/vmware/webAccess/java/jre*/lib/management
+%{_libdir}/vmware/webAccess/java/jre*/lib/oblique-fonts
+%{_libdir}/vmware/webAccess/java/jre*/lib/psfont*
+%{_libdir}/vmware/webAccess/java/jre*/[A-Z]*
 %attr(644,root,root) %{_libdir}/vmware/webAccess/vmware*
 %ifarch %{ix86}
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/awt_robot
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/gtkhelper
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/jvm.cfg
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/server/Xusage.txt
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/headless
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/motif21
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/native_threads
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/server
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/i386/xawt
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/i386/awt_robot
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/i386/gtkhelper
+%{_libdir}/vmware/webAccess/java/jre*/lib/i386/jvm.cfg
+%{_libdir}/vmware/webAccess/java/jre*/lib/i386/server/Xusage.txt
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386/headless
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386/motif21
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386/native_threads
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386/server
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386/xawt
 %endif
 %ifarch %{x8664}
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/.systemPrefs
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/awt_robot
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/gtkhelper
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/jvm.cfg
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/server/Xusage.txt
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/headless
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/motif21
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/native_threads
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/server
-%dir %{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/amd64/xawt
+%{_libdir}/vmware/webAccess/java/jre*/.systemPrefs
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/awt_robot
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/gtkhelper
+%{_libdir}/vmware/webAccess/java/jre*/lib/amd64/jvm.cfg
+%{_libdir}/vmware/webAccess/java/jre*/lib/amd64/server/Xusage.txt
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/headless
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/motif21
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/native_threads
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/server
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/xawt
 %endif
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/classlist
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/content-types.properties
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/flavormap.properties
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/jvm.hprof.txt
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/logging.properties
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/net.properties
-%{_libdir}/vmware/webAccess/java/jre1.5.0_07/lib/sound.properties
+%{_libdir}/vmware/webAccess/java/jre*/lib/classlist
+%{_libdir}/vmware/webAccess/java/jre*/lib/content-types.properties
+%{_libdir}/vmware/webAccess/java/jre*/lib/flavormap.properties
+%{_libdir}/vmware/webAccess/java/jre*/lib/jvm.hprof.txt
+%{_libdir}/vmware/webAccess/java/jre*/lib/logging.properties
+%{_libdir}/vmware/webAccess/java/jre*/lib/net.properties
+%{_libdir}/vmware/webAccess/java/jre*/lib/sound.properties
 
 %defattr(444,root,root,755)
 %dir %{_libdir}/vmware/webAccess/tomcat
-%dir %{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17
-%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/common
-%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/conf
-%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/logs
-%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/server
-%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/temp
+%dir %{_libdir}/vmware/webAccess/tomcat/apache-tomcat-*
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-*/conf
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-*/temp
 %defattr(555,root,root,755)
-%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/bin
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-*/bin
 %defattr(644,root,root,755)
-%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/webapps
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-*/webapps
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-*/lib
 %defattr(444,root,root,755)
-%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/LICENSE
-%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/NOTICE
-%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/RELEASE-NOTES
-%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-5.5.17/RUNNING.txt
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-*/LICENSE
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-*/NOTICE
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-*/RELEASE-NOTES
+%{_libdir}/vmware/webAccess/tomcat/apache-tomcat-*/RUNNING.txt
 
 %defattr(444,root,root,755)
 %{_libdir}/vmware/vmware-vix
@@ -888,4 +877,8 @@ fi
 %files -n kernel%{_alt_kernel}-misc-vmnet
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}/misc/vmnet.ko*
+
+%files -n kernel%{_alt_kernel}-misc-vsock
+%defattr(644,root,root,755)
+/lib/modules/%{_kernel_ver}/misc/vsock.ko*
 %endif

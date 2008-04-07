@@ -1,18 +1,9 @@
---- vmware-server-distrib/bin/vmware-config.pl	2007-11-09 14:22:03.000000000 +0200
-+++ vmware-server-distrib/bin/vmware-config.pl	2008-04-07 15:57:41.590945387 +0300
-@@ -3774,7 +3776,7 @@
-     $mod_dir = db_get_answer('LIBDIR') . '/modules';
-   }
- 
--  if (($name eq 'vmxnet') and (not is64BitKernel()) and ($gOption{'kernel_version'} eq '')) {
-+  if (0 && ($name eq 'vmxnet') and (not is64BitKernel()) and ($gOption{'kernel_version'} eq '')) {
-     # Figure out the correct network script.
-     my $init_dir = db_get_answer('INITSCRIPTSDIR');
-     my $network_path = find_first_exist("$init_dir/network",
-@@ -3820,6 +3822,26 @@
- 
-     print wrap('Trying to find a suitable ' . $name
-                . ' module for your running kernel.' . "\n\n", 0);
+--- vmware-server-distrib/bin/vmware-config.pl~	2008-04-07 21:04:12.095539024 +0300
++++ vmware-server-distrib/bin/vmware-config.pl	2008-04-07 21:08:37.755436186 +0300
+@@ -3932,6 +3932,26 @@
+       && can_build_module($name) eq 'yes') {
+     db_add_answer('BUILDR_' . $name, 'yes');
+   } else {
 +
 +    my $kmod_dir = $cKernelModuleDir . '/'. $gSystem{'uts_release'};
 +    if (-d $kmod_dir) {
@@ -33,6 +24,6 @@
 +      return $found if $found;
 +    }
 +
+     my @mod_list;
+ 
      @mod_list = get_suitable_modules($mod_dir . '/binary');
-     while ($#mod_list > -1) {
-       my $candidate = shift(@mod_list);

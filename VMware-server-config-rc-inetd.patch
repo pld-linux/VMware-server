@@ -59,7 +59,7 @@
 +
 +  my %patch = ( '%port%' => $port, '%authd%' => $authd );
 +
-+  install_file(db_get_answer('LIBDIR') . '/configurator/authd-xinetd.conf',
++  install_file(db_get_answer('LIBDIR') . '/configurator/authd-rc-inetd.conf',
 +               $authd_conf_file, \%patch,
 +               $cFlagTimestamp | $cFlagConfig);
 +

@@ -1,0 +1,73 @@
+--- ../BUILD/vmware-server-distrib/bin/vmware-config.pl	2007-11-09 14:22:03.000000000 +0200
++++ /usr/bin/vmware-config.pl	2008-04-07 14:56:57.510937518 +0300
+@@ -7499,6 +7500,7 @@
+   my $inetd_conf  = "/etc/inetd.conf";
+   my $xinetd_conf = "/etc/xinetd.conf";
+   my $xinetd_dir  = "/etc/xinetd.d";
++  my $rcinetd_dir  = "/etc/sysconfig/rc-inetd";
+   my $success     = 0;
+   my $port;
+ 
+@@ -7550,12 +7552,16 @@
+                . ' clients on other machines.' . "\n", 0);
+   }
+ 
++  if (-d $rcinetd_dir) {
++	  $success = configure_rcinetd($rcinetd_dir, $port);
++  }
++
+   # check for xinetd
+   # XXX Could be a problem, as they could start xinetd with '-f config_file'.
+   #     We could do a ps -ax, look for xinetd, parse the line, find the config
+   #     file, parse the config file to find the xinet.d directory.  Bah.  Or
+   #     parse if from the init.d script somewhere.  If they use init.d.
+-  if (check_is_running('xinetd')) {
++  if (!$success && check_is_running('xinetd')) {
+     if (open(CONF, $xinetd_conf)) {
+       # Let's try to find it here
+       while (<CONF>) {
+@@ -7732,6 +7738,17 @@
+   }
+ }
+ 
++#Restart rc-inetd
++sub restart_rcinetd {
++  my $rcinetd_restart = db_get_answer('INITSCRIPTSDIR') . '/rc-inetd';
++  if (-e $rcinetd_restart) {
++    if (!system(shell_string($rcinetd_restart) . ' restart')) {
++      return;
++    }
++  }
++}
++
++
+ # Update the Internet super-server's configuration file, and make the
+ # super-server read it
+ sub configure_xinetd {
+@@ -7758,6 +7775,26 @@
+   restart_xinetd();
+ }
+ 
++# Update the Internet super-server's configuration file, and make the
++# super-server read it
++sub configure_rcinetd {
++  my $conf_dir  = shift;
++  my $port      = shift;
++
++  my $authd_conf_file = "$conf_dir/vmware-authd";
++  my $authd = db_get_answer('SBINDIR') . "/vmware-authd";
++
++  my %patch = ( '%port%' => $port, '%authd%' => $authd );
++
++  install_file(db_get_answer('LIBDIR') . '/configurator/authd-xinetd.conf',
++               $authd_conf_file, \%patch,
++               $cFlagTimestamp | $cFlagConfig);
++
++  restart_rcinetd();
++  return 1;
++}
++
++
+ # Setup the hostd configuration files
+ sub configure_hostd {
+    my %patch;

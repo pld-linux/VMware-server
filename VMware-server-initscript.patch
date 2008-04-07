@@ -1,0 +1,11 @@
+--- vmware-server-distrib/installer/services.sh	2007-11-09 14:22:04.000000000 +0200
++++ vmware-server-distrib/installer/services.sh	2008-04-07 15:59:41.008239077 +0300
+@@ -681,7 +681,7 @@
+ }
+ 
+ vmware_load_module() {
+-   /sbin/insmod -s -f "/lib/modules/`uname -r`/misc/$1.o" || exit 1
++   /sbin/modprobe $1 || exit 1
+    exit 0
+ }
+ 

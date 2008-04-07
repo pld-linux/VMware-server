@@ -1,0 +1,9 @@
+# The VMware remote access authentification daemon
+SERVICE_NAME=vmware-authd
+SOCK_TYPE=stream
+PROTOCOL=tcp
+PORT=%port%
+FLAGS=nowait
+USER=root
+SERVER=tcpd
+DAEMON=%authd%

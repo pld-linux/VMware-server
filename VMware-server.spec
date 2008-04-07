@@ -59,9 +59,13 @@ Source8:	%{name}.desktop
 Source9:	%{name}-nat.conf
 Source10:	%{name}-dhcpd.conf
 Source11:	%{name}-libs
+Source12:	%{name}-authd.rc-inetd
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-run_script.patch
 Patch2:		%{name}-init_pl.patch
+Patch3:		%{name}-config-rc-inetd.patch
+Patch4:		%{name}-config-kernel.patch
+Patch5:		%{name}-initscript.patch
 NoSource:	0
 NoSource:	1
 NoSource:	2
@@ -242,6 +246,10 @@ Moduły jądra dla VMware Server - vmnet.
 %setup -q -T -n vmware-server-distrib -b1 %{?with_userspace:-a3}
 %endif
 
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+
 cd lib/modules
 %{__tar} xf source/vmci.tar
 %{__tar} xf source/vmmon.tar
@@ -391,6 +399,7 @@ cp -a lib/net-services.sh $RPM_BUILD_ROOT%{_libdir}/vmware
 cp -a lib/modules $RPM_BUILD_ROOT%{_libdir}/vmware
 rm -rf $RPM_BUILD_ROOT%{_libdir}/vmware/modules/*-only
 cp -a lib/configurator $RPM_BUILD_ROOT%{_libdir}/vmware
+cp -a %{SOURCE12} $RPM_BUILD_ROOT%{_libdir}/vmware/configurator/authd-rc-inetd.conf
 cp -a etc/hostd $RPM_BUILD_ROOT/etc/vmware/hostd
 cp -a etc/installer.sh $RPM_BUILD_ROOT/etc/vmware
 cp -a etc/pam.d $RPM_BUILD_ROOT/etc/vmware

@@ -1,5 +1,6 @@
 file /etc/vmware/locations
 directory /etc/vmware/state
+
 answer BINDIR /usr/bin
 answer SBINDIR /usr/sbin
 answer LIBDIR /usr/lib/vmware
@@ -7,4 +8,41 @@ answer DOCDIR /usr/share/doc/vmware
 answer MANDIR /usr/share/man
 answer INITDIR /etc/rc.d
 answer INITSCRIPTSDIR /etc/rc.d/init.d
+answer VMDIR /var/lib/vmware/Virtual Machines
+
 answer NETWORKING yes
+answer AUTHDPORT 902
+answer HTTPS_PROXY_PORT 8333
+answer HTTP_PROXY_PORT 8222
+answer NETWORKING_EDITOR wizard
+answer NETWORKING_SKIP_SETUP no
+answer USE_CURRENT_PORTS yes
+answer VMAUTHD_USE_LAUNCHER no
+answer VMCI_CONFED yes
+answer VNET_0_INTERFACE eth0
+answer VNET_0_NAME Bridged
+answer VNET_1_DHCP yes
+answer VNET_1_HOSTONLY_HOSTADDR 192.168.23.1
+answer VNET_1_HOSTONLY_NETMASK 255.255.255.0
+answer VNET_1_HOSTONLY_SUBNET 192.168.23.0
+answer VNET_1_NAME HostOnly
+answer VNET_8_DHCP yes
+answer VNET_8_HOSTONLY_HOSTADDR 172.16.98.1
+answer VNET_8_HOSTONLY_NETMASK 255.255.255.0
+answer VNET_8_HOSTONLY_SUBNET 172.16.98.0
+answer VNET_8_NAME NAT
+answer VNET_8_NAT yes
+answer VSOCK_CONFED yes
+
+directory /etc/vmware/ssl
+directory /etc/vmware/state
+directory /etc/vmware/vmnet1
+directory /etc/vmware/vmnet1/dhcpd
+directory /etc/vmware/vmnet8
+directory /etc/vmware/vmnet8/dhcpd
+directory /etc/vmware/vmnet8/nat
+directory /etc/vmware/webAccess
+directory /var/lib/vmware
+directory /var/lib/vmware/Virtual Machines
+directory /var/log/vmware
+directory /var/log/vmware/webAccess

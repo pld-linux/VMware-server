@@ -1,7 +1,10 @@
 #!/usr/bin/perl -w
 # $Id$
+#
 # process vmware locations database
 # filter the database and keep only single answers not the complete log
+#
+# purpose: cleanup locations db for making it into default rpm config
 
 use strict;
 

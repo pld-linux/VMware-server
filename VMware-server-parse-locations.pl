@@ -38,13 +38,6 @@ while (my($key, $value) = each %files) {
 	} else {
 		printf("file %s\n", $key);
 	}
-}
-while (my($key, $value) = each %files) {
-	if ($value) {
-		printf("file %s %s\n", $key, $value);
-	} else {
-		printf("file %s\n", $key);
-	}
 	if (exists $config{$key}) {
 		printf("config %s\n", $key);
 		delete $config{$key};

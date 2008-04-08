@@ -18,7 +18,7 @@
 #
 %define		ver	2.0
 %define		subver	84186
-%define		rel	0.4
+%define		rel	0.5
 %{expand:%%global	ccver	%(%{__cc} -dumpversion)}
 #
 Summary:	VMware Server
@@ -48,7 +48,8 @@ Source11:	%{name}-libs
 Source12:	%{name}-locations
 Patch0:		%{name}-config-rc-inetd.patch
 Patch1:		%{name}-config-kernel.patch
-Patch2:		%{name}-initscript.patch
+Patch2:		%{name}-config-pam.patch
+Patch3:		%{name}-initscript.patch
 NoSource:	0
 NoSource:	1
 NoSource:	2
@@ -250,6 +251,7 @@ rm -rf lib/isoimages # packaged by %{name}-isoimages.spec
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 cd lib/modules
 %{__tar} xf source/vmci.tar
@@ -342,6 +344,8 @@ cp -a lib/vmacore $RPM_BUILD_ROOT%{_libdir}/vmware
 cp -a lib/net-services.sh $RPM_BUILD_ROOT%{_libdir}/vmware
 cp -a lib/configurator $RPM_BUILD_ROOT%{_libdir}/vmware
 cp -a %{SOURCE6} $RPM_BUILD_ROOT%{_libdir}/vmware/configurator/authd-rc-inetd.conf
+install -d $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd
+sed -e 's,%port%,902,;s,%authd%,%{_sbindir}/vmware-authd,' %{SOURCE6} > $RPM_BUILD_ROOT/etc/sysconfig/rc-inetd/vmware-authd
 cp -a etc/hostd $RPM_BUILD_ROOT/etc/vmware/hostd
 cp -a etc/installer.sh $RPM_BUILD_ROOT/etc/vmware
 cp -a etc/pam.d/vmware-authd $RPM_BUILD_ROOT/etc/pam.d
@@ -415,6 +419,7 @@ fi
 %files
 %defattr(644,root,root,755)
 %config(noreplace) %verify(not md5 mtime size) /etc/pam.d/vmware-authd
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/rc-inetd/vmware-authd
 %dir %{_sysconfdir}/vmware
 %dir %{_sysconfdir}/vmware/state
 %dir %{_sysconfdir}/vmware/hostd

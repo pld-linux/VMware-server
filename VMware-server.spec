@@ -1,11 +1,10 @@
 # TODO
 # - make vmware-config.pl work
-# - put things back to subpackages
-# - use system java, tomcat, etc packages
-# - make use rc-inetd style config
-# - switch to proper %{_libdir} when done for 64bit arch
 # - sane permissions
+# - switch to proper %{_libdir} when done for 64bit arch
+# - use system java, tomcat, etc packages
 # - package webAccess elsewhere, seems noarch mostly (but if using system pkgs for java/tomcat leave it still huge)
+# - put things back to subpackages (if makes sense)
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
@@ -19,7 +18,7 @@
 #
 %define		ver	2.0
 %define		subver	84186
-%define		rel	0.3
+%define		rel	0.4
 %{expand:%%global	ccver	%(%{__cc} -dumpversion)}
 #
 Summary:	VMware Server
@@ -38,14 +37,15 @@ Source2:	http://download3.vmware.com/software/vmserver/VMware-vix-e.x.p-%{subver
 # NoSource2-md5:	d81db3079785a7454902aed222e611ad
 Source3:	http://download3.vmware.com/software/vmserver/VMware-vix-e.x.p-%{subver}.x86_64.tar.gz
 # NoSource3-md5:	bc7bdf81d14887861b4f5413e78fd539
-Source5:	%{name}.init
-Source6:	%{name}-vmnet.conf
-Source7:	%{name}.png
-Source8:	%{name}.desktop
-Source9:	%{name}-nat.conf
-Source10:	%{name}-dhcpd.conf
+Source4:	%{name}.png
+Source5:	%{name}.desktop
+Source6:	%{name}-authd.rc-inetd
+Source7:	%{name}-nat.conf
+Source8:	%{name}-dhcpd.conf
+Source9:	%{name}-dhcpd-hostonly.conf
+Source10:	%{name}-parse-locations.pl
 Source11:	%{name}-libs
-Source12:	%{name}-authd.rc-inetd
+Source12:	%{name}-locations
 Patch0:		%{name}-config-rc-inetd.patch
 Patch1:		%{name}-config-kernel.patch
 Patch2:		%{name}-initscript.patch
@@ -309,7 +309,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %if %{with userspace}
 install -d \
-	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/{nat,dhcpd} \
+	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet{1,8}/{nat,dhcpd} \
 	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/state \
 	$RPM_BUILD_ROOT%{_bindir} \
 	$RPM_BUILD_ROOT%{_sbindir} \
@@ -317,19 +317,20 @@ install -d \
 	$RPM_BUILD_ROOT%{_mandir} \
 	$RPM_BUILD_ROOT%{_pixmapsdir} \
 	$RPM_BUILD_ROOT%{_desktopdir} \
-	$RPM_BUILD_ROOT/etc/rc.d/init.d \
+	$RPM_BUILD_ROOT/etc/{pam.d,rc.d/init.d} \
 	$RPM_BUILD_ROOT/var/{log,run}/vmware \
 	$RPM_BUILD_ROOT/var/lib/vmware/{hostd,"Virtual Machines"}
 
-install %{SOURCE5} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmnet
-install %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet.conf
-install %{SOURCE7} $RPM_BUILD_ROOT%{_pixmapsdir}
-install %{SOURCE8} $RPM_BUILD_ROOT%{_desktopdir}
-install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/nat/nat.conf
-install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
+install %{SOURCE4} $RPM_BUILD_ROOT%{_pixmapsdir}
+install %{SOURCE5} $RPM_BUILD_ROOT%{_desktopdir}
+install %{SOURCE7} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/nat/nat.conf
+install %{SOURCE8} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
+install %{SOURCE9} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet1/dhcpd/dhcpd.conf
+install %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/parse-locations.pl
+cp -a %{SOURCE12} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/locations
 
-touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases
-touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases~
+touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet{1,8}/dhcpd/dhcpd.leases
+touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet{1,8}/dhcpd/dhcpd.leases~
 
 install bin/*-* $RPM_BUILD_ROOT%{_bindir}
 install sbin/*-* $RPM_BUILD_ROOT%{_sbindir}
@@ -340,10 +341,10 @@ cp -a vmware-vix $RPM_BUILD_ROOT%{_libdir}/vmware
 cp -a lib/vmacore $RPM_BUILD_ROOT%{_libdir}/vmware
 cp -a lib/net-services.sh $RPM_BUILD_ROOT%{_libdir}/vmware
 cp -a lib/configurator $RPM_BUILD_ROOT%{_libdir}/vmware
-cp -a %{SOURCE12} $RPM_BUILD_ROOT%{_libdir}/vmware/configurator/authd-rc-inetd.conf
+cp -a %{SOURCE6} $RPM_BUILD_ROOT%{_libdir}/vmware/configurator/authd-rc-inetd.conf
 cp -a etc/hostd $RPM_BUILD_ROOT/etc/vmware/hostd
 cp -a etc/installer.sh $RPM_BUILD_ROOT/etc/vmware
-cp -a etc/pam.d $RPM_BUILD_ROOT/etc/vmware
+cp -a etc/pam.d/vmware-authd $RPM_BUILD_ROOT/etc/pam.d
 cp -a etc/service $RPM_BUILD_ROOT/etc/vmware
 
 install -d $RPM_BUILD_ROOT%{_docdir}
@@ -356,18 +357,6 @@ install installer/services.sh $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware
 ln -s vmware $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware-autostart
 ln -s vmware $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware-core
 ln -s vmware $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware-mgmt
-cat > $RPM_BUILD_ROOT%{_sysconfdir}/vmware/locations <<'EOF'
-file /etc/vmware/locations
-directory /etc/vmware/state
-answer BINDIR /usr/bin
-answer SBINDIR /usr/sbin
-answer LIBDIR /usr/lib/vmware
-answer DOCDIR /usr/share/doc/vmware
-answer MANDIR /usr/share/man
-answer INITDIR /etc/rc.d
-answer INITSCRIPTSDIR /etc/rc.d/init.d
-answer INSTALL_CYCLE yes
-EOF
 
 rm $RPM_BUILD_ROOT/usr/bin/vmware-uninstall.pl
 rm $RPM_BUILD_ROOT/usr/bin/vmware-vimdump
@@ -424,32 +413,35 @@ fi
 
 %if %{with userspace}
 %files
-%defattr(444,root,root,755)
+%defattr(644,root,root,755)
+%config(noreplace) %verify(not md5 mtime size) /etc/pam.d/vmware-authd
 %dir %{_sysconfdir}/vmware
 %dir %{_sysconfdir}/vmware/state
 %dir %{_sysconfdir}/vmware/hostd
 %dir %{_sysconfdir}/vmware/hostd/env
-%attr(644,root,root) %{_sysconfdir}/vmware/hostd/env/*.xml
-%attr(444,root,root) %{_sysconfdir}/vmware/hostd/key.pub
-%attr(644,root,root) %{_sysconfdir}/vmware/hostd/*.vha
-%attr(644,root,root) %{_sysconfdir}/vmware/hostd/*.xml
-%dir %{_sysconfdir}/vmware/pam.d
-%attr(644,root,root) %{_sysconfdir}/vmware/pam.d/vmware-authd
+%{_sysconfdir}/vmware/hostd/env/*.xml
+%{_sysconfdir}/vmware/hostd/key.pub
+%{_sysconfdir}/vmware/hostd/*.vha
+%{_sysconfdir}/vmware/hostd/*.xml
 %dir %{_sysconfdir}/vmware/service
-%attr(644,root,root) %{_sysconfdir}/vmware/service/services.xml
-%attr(555,root,root) %{_sysconfdir}/vmware/installer.sh
+%{_sysconfdir}/vmware/service/services.xml
+%{_sysconfdir}/vmware/installer.sh
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/locations
+%attr(755,root,root) %{_sysconfdir}/vmware/parse-locations.pl
 
-# TODO: vmnet
+# vmnet1: HostOnly
+%dir %{_sysconfdir}/vmware/vmnet1
+%dir %{_sysconfdir}/vmware/vmnet1/dhcpd
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet1/dhcpd/dhcpd.conf
+%ghost %{_sysconfdir}/vmware/vmnet1/dhcpd/dhcpd.leases*
+
+# vmnet8: NAT
 %dir %{_sysconfdir}/vmware/vmnet8
 %dir %{_sysconfdir}/vmware/vmnet8/dhcpd
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
 %dir %{_sysconfdir}/vmware/vmnet8/nat
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/nat/nat.conf
-%verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases*
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet.conf
-%attr(754,root,root) /etc/rc.d/init.d/vmnet
-# TODO: vmnet
+%ghost %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases*
 
 %attr(754,root,root) /etc/rc.d/init.d/vmware
 %attr(754,root,root) /etc/rc.d/init.d/vmware-autostart
@@ -466,6 +458,7 @@ fi
 %attr(4555,root,root) %{_sbindir}/vmware-authd
 %attr(555,root,root) %{_sbindir}/vmware-authdlauncher
 %attr(555,root,root) %{_sbindir}/vmware-hostd
+
 %dir %{_libdir}/vmware
 %dir %{_libdir}/vmware/bin
 # warning: SUID !!!
@@ -564,6 +557,7 @@ fi
 %defattr(-,root,root,755)
 %dir %{_libdir}/vmware/webAccess
 %defattr(444,root,root,755)
+# TODO: use system java-sun
 %dir %{_libdir}/vmware/webAccess/java
 %dir %{_libdir}/vmware/webAccess/java/jre*
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/bin/*

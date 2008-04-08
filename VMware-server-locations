@@ -1,0 +1,10 @@
+file /etc/vmware/locations
+directory /etc/vmware/state
+answer BINDIR /usr/bin
+answer SBINDIR /usr/sbin
+answer LIBDIR /usr/lib/vmware
+answer DOCDIR /usr/share/doc/vmware
+answer MANDIR /usr/share/man
+answer INITDIR /etc/rc.d
+answer INITSCRIPTSDIR /etc/rc.d/init.d
+answer NETWORKING yes

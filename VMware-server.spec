@@ -166,7 +166,7 @@ VMware SMB utilities.
 Narzędzia VMware do SMB.
 
 %package -n kernel%{_alt_kernel}-misc-vmci
-Summary:	Kernel module for VMware Server
+Summary:	VMware Virtual Machine Communication Interface (VMCI)
 Summary(pl.UTF-8):	Moduł jądra dla VMware Server
 Release:	%{rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
@@ -178,13 +178,13 @@ Requires(postun):	%releq_kernel
 %endif
 
 %description -n kernel%{_alt_kernel}-misc-vmci
-Kernel modules for VMware Server - vmci.
+VMware Virtual Machine Communication Interface (VMCI).
 
 %description -n kernel%{_alt_kernel}-misc-vmci -l pl.UTF-8
 Moduły jądra dla VMware Server - vmci.
 
 %package -n kernel%{_alt_kernel}-misc-vmmon
-Summary:	Kernel module for VMware Server
+Summary:	VMware Virtual Machine Monitor
 Summary(pl.UTF-8):	Moduł jądra dla VMware Server
 Release:	%{rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
@@ -196,13 +196,13 @@ Requires(postun):	%releq_kernel
 %endif
 
 %description -n kernel%{_alt_kernel}-misc-vmmon
-Kernel modules for VMware Server - vmmon.
+VMware Virtual Machine Monitor.
 
 %description -n kernel%{_alt_kernel}-misc-vmmon -l pl.UTF-8
 Moduły jądra dla VMware Server - vmmon.
 
 %package -n kernel%{_alt_kernel}-misc-vmnet
-Summary:	Kernel module for VMware Server
+Summary:	VMware Virtual Networking Driver
 Summary(pl.UTF-8):	Moduł jądra dla VMware Server
 Release:	%{rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
@@ -214,13 +214,13 @@ Requires(postun):	%releq_kernel
 %endif
 
 %description -n kernel%{_alt_kernel}-misc-vmnet
-Kernel modules for VMware Server - vmnet.
+VMware Virtual Networking Driver.
 
 %description -n kernel%{_alt_kernel}-misc-vmnet -l pl.UTF-8
 Moduły jądra dla VMware Server - vmnet.
 
 %package -n kernel%{_alt_kernel}-misc-vsock
-Summary:	Kernel module for VMware Server
+Summary:	VMware Virtual Socket Family
 Summary(pl.UTF-8):	Moduł jądra dla VMware Server
 Release:	%{rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
@@ -233,7 +233,7 @@ Requires(postun):	%releq_kernel
 Requires:	kernel%{_alt_kernel}-misc-vmci = %{version}-%{rel}@%{_kernel_ver_str}
 
 %description -n kernel%{_alt_kernel}-misc-vsock
-Kernel modules for VMware Server - vsock.
+VMware Virtual Socket Family.
 
 %description -n kernel%{_alt_kernel}-misc-vsock -l pl.UTF-8
 Moduły jądra dla VMware Server - vsock.

@@ -18,7 +18,7 @@
 #
 %define		ver	2.0
 %define		subver	84186
-%define		rel	0.5
+%define		rel	0.6
 %{expand:%%global	ccver	%(%{__cc} -dumpversion)}
 #
 Summary:	VMware Server
@@ -230,7 +230,7 @@ Requires:	dev >= 2.9.0-7
 %requires_releq_kernel
 Requires(postun):	%releq_kernel
 %endif
-Requires:	kernel%{_alt_kernel}-misc-vmci = %{version}-%{rel}
+Requires:	kernel%{_alt_kernel}-misc-vmci = %{version}-%{rel}@%{_kernel_ver_str}
 
 %description -n kernel%{_alt_kernel}-misc-vsock
 Kernel modules for VMware Server - vsock.

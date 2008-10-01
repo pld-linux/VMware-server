@@ -167,7 +167,7 @@ Narzędzia VMware do SMB.
 
 %package -n kernel%{_alt_kernel}-misc-vmci
 Summary:	VMware Virtual Machine Communication Interface (VMCI)
-Summary(pl.UTF-8):	Moduł jądra dla VMware Server
+Summary(pl.UTF-8):	VMCI (Virtual Machine Communication Interface) - interfejs komunikacyjny VMware
 Release:	%{rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -178,14 +178,16 @@ Requires(postun):	%releq_kernel
 %endif
 
 %description -n kernel%{_alt_kernel}-misc-vmci
-VMware Virtual Machine Communication Interface (VMCI).
+Linux kernel module acting as VMware Virtual Machine Communication
+Interface (VMCI).
 
 %description -n kernel%{_alt_kernel}-misc-vmci -l pl.UTF-8
-Moduły jądra dla VMware Server - vmci.
+Moduł jądra Linuksa będący interfejsem komunikacyjnym VMware (VMCI -
+Virtual Machine Communication Interface).
 
 %package -n kernel%{_alt_kernel}-misc-vmmon
 Summary:	VMware Virtual Machine Monitor
-Summary(pl.UTF-8):	Moduł jądra dla VMware Server
+Summary(pl.UTF-8):	Virtual Machine Monitor - monitor maszyny wirtualnej VMware
 Release:	%{rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -196,14 +198,15 @@ Requires(postun):	%releq_kernel
 %endif
 
 %description -n kernel%{_alt_kernel}-misc-vmmon
-VMware Virtual Machine Monitor.
+Linux kernel module acting as VMware Virtual Machine Monitor.
 
 %description -n kernel%{_alt_kernel}-misc-vmmon -l pl.UTF-8
-Moduły jądra dla VMware Server - vmmon.
+Moduł jądra Linuksa będący monitorem maszyny wirtualnej VMware
+(Virtual Machine Monitor).
 
 %package -n kernel%{_alt_kernel}-misc-vmnet
 Summary:	VMware Virtual Networking Driver
-Summary(pl.UTF-8):	Moduł jądra dla VMware Server
+Summary(pl.UTF-8):	Virtual Networking Driver - sterownik wirtualnej sieci VMware
 Release:	%{rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -214,14 +217,15 @@ Requires(postun):	%releq_kernel
 %endif
 
 %description -n kernel%{_alt_kernel}-misc-vmnet
-VMware Virtual Networking Driver.
+Linux kernel module acting as VMware Virtual Networking Driver.
 
 %description -n kernel%{_alt_kernel}-misc-vmnet -l pl.UTF-8
-Moduły jądra dla VMware Server - vmnet.
+Moduł jądra Linuksa będący sterownikiem wirtualnej sieci VMware
+(Virtual Networking Driver).
 
 %package -n kernel%{_alt_kernel}-misc-vsock
-Summary:	VMware Virtual Socket Family
-Summary(pl.UTF-8):	Moduł jądra dla VMware Server
+Summary:	VMware Virtual Socket Family support
+Summary(pl.UTF-8):	Obsługa Virtual Socket Family - rodziny gniazd wirtualnych VMware
 Release:	%{rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -233,10 +237,11 @@ Requires(postun):	%releq_kernel
 Requires:	kernel%{_alt_kernel}-misc-vmci = %{version}-%{rel}@%{_kernel_ver_str}
 
 %description -n kernel%{_alt_kernel}-misc-vsock
-VMware Virtual Socket Family.
+Linux kernel module supporting VMware Virtual Socket Family.
 
 %description -n kernel%{_alt_kernel}-misc-vsock -l pl.UTF-8
-Moduły jądra dla VMware Server - vsock.
+Moduł jądra Linuksa obsługujący rodzinę gniazd wirtualnych VMware
+(Virtual Socket Family).
 
 %prep
 %ifarch %{ix86}

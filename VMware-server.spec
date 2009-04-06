@@ -16,9 +16,10 @@
 #
 %include	/usr/lib/rpm/macros.perl
 #
-%define		ver	2.0
-%define		subver	84186
-%define		rel	0.6
+%define		ver	2.0.0
+%define		vixver	1.6.0
+%define		subver	116503
+%define		rel	0.8
 %{expand:%%global	ccver	%(%{__cc} -dumpversion)}
 #
 Summary:	VMware Server
@@ -28,15 +29,15 @@ Version:	%{ver}.%{subver}
 Release:	%{rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
-# http://www.vmware.com/beta/server/download.html
-Source0:	http://download3.vmware.com/software/vmserver/%{name}-e.x.p-%{subver}.i386.tar.gz
-# NoSource0-md5:	30f20c55a76ba46543df0e80bd21affc
-Source1:	http://download3.vmware.com/software/vmserver/%{name}-e.x.p-%{subver}.x86_64.tar.gz
-# NoSource1-md5:	31dcec2889bcac228f76f0914e89469b
-Source2:	http://download3.vmware.com/software/vmserver/VMware-vix-e.x.p-%{subver}.i386.tar.gz
-# NoSource2-md5:	d81db3079785a7454902aed222e611ad
-Source3:	http://download3.vmware.com/software/vmserver/VMware-vix-e.x.p-%{subver}.x86_64.tar.gz
-# NoSource3-md5:	bc7bdf81d14887861b4f5413e78fd539
+# http://www.vmware.com/download/server/
+Source0:	http://download2.vmware.com/software/server/%{name}-%{ver}-%{subver}.i386.tar.gz
+# NoSource0-md5:
+Source1:	http://download2.vmware.com/software/server/%{name}-%{ver}-%{subver}.x86_64.tar.gz
+# NoSource1-md5:
+Source2:	http://download2.vmware.com/software/server/VMware-vix-%{vixver}-%{subver}.i386.tar.gz
+# NoSource2-md5:
+Source3:	http://download2.vmware.com/software/server/VMware-vix-%{vixver}-%{subver}.x86_64.tar.gz
+# NoSource3-md5:
 Source4:	%{name}.png
 Source5:	%{name}.desktop
 Source6:	%{name}-authd.rc-inetd
@@ -46,9 +47,9 @@ Source9:	%{name}-dhcpd-hostonly.conf
 Source10:	%{name}-parse-locations.pl
 Source11:	%{name}-libs
 Source12:	%{name}-locations
-Patch0:		%{name}-config-rc-inetd.patch
+#Patch0:		%{name}-config-rc-inetd.patch
 Patch1:		%{name}-config-kernel.patch
-Patch2:		%{name}-config-pam.patch
+#Patch2:		%{name}-config-pam.patch
 Patch3:		%{name}-initscript.patch
 NoSource:	0
 NoSource:	1
@@ -58,6 +59,7 @@ URL:		http://www.vmware.com/
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.16}
 BuildRequires:	libstdc++-devel
 BuildRequires:	rpm-perlprov
+BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.449
 BuildRequires:	sed >= 4.0
 Requires:	%{name}-isoimages = %{version}
@@ -253,9 +255,9 @@ Moduł jądra Linuksa obsługujący rodzinę gniazd wirtualnych VMware
 
 rm -rf lib/isoimages # packaged by %{name}-isoimages.spec
 
-%patch0 -p1
+#%patch0 -p1
 %patch1 -p1
-%patch2 -p1
+#%patch2 -p1
 %patch3 -p1
 
 cd lib/modules
@@ -368,7 +370,7 @@ ln -s vmware $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware-core
 ln -s vmware $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware-mgmt
 
 rm $RPM_BUILD_ROOT/usr/bin/vmware-uninstall.pl
-rm $RPM_BUILD_ROOT/usr/bin/vmware-vimdump
+#rm $RPM_BUILD_ROOT/usr/bin/vmware-vimdump
 rm $RPM_BUILD_ROOT/usr/share/applications/VMware-server.desktop
 rm $RPM_BUILD_ROOT/usr/share/pixmaps/VMware-server.png
 
@@ -462,7 +464,7 @@ fi
 %attr(555,root,root) %{_bindir}/vmware-config.pl
 %attr(555,root,root) %{_bindir}/vmware-mount
 %attr(555,root,root) %{_bindir}/vmware-vimsh
-%attr(555,root,root) %{_bindir}/vmware-vsh
+%attr(555,root,root) %{_bindir}/vmware-vim-cmd
 %attr(555,root,root) %{_bindir}/vmware-watchdog
 %attr(555,root,root) %{_bindir}/vmware-vdiskmanager
 %attr(4555,root,root) %{_sbindir}/vmware-authd
@@ -481,21 +483,22 @@ fi
 %attr(555,root,root) %{_libdir}/vmware/bin/openssl
 %attr(555,root,root) %{_libdir}/vmware/bin/vmrun
 %attr(755,root,root) %{_libdir}/vmware/bin/vmware-hostd
-%attr(755,root,root) %{_libdir}/vmware/bin/vmware-hostd-dynamic
+#%attr(755,root,root) %{_libdir}/vmware/bin/vmware-hostd-dynamic
 %attr(555,root,root) %{_libdir}/vmware/bin/vmware-remotemks
 %attr(555,root,root) %{_libdir}/vmware/bin/vmware-remotemks-debug
-%attr(555,root,root) %{_libdir}/vmware/bin/vmware-vimdump
+#%attr(555,root,root) %{_libdir}/vmware/bin/vmware-vimdump
 %attr(555,root,root) %{_libdir}/vmware/bin/vmware-vmx-debug
 %attr(777,root,root) %{_libdir}/vmware/bin/vmware-vmx-stats
-%attr(755,root,root) %{_libdir}/vmware/bin/vmware-vsh
+%attr(755,root,root) %{_libdir}/vmware/bin/vmware-vim-cmd
+%attr(755,root,root) %{_libdir}/vmware/bin/vmware-vimsh
 
 %dir %{_libdir}/vmware/lib
-%{_libdir}/vmware/lib/libcrypto.so.0.9.7
+%{_libdir}/vmware/lib/libcrypto.so.0.9.8
 %{_libdir}/vmware/lib/libcurl.so.4
 %{_libdir}/vmware/lib/libglib-2.0.so.0
 %{_libdir}/vmware/lib/libgobject-2.0.so.0
 %{_libdir}/vmware/lib/libgthread-2.0.so.0
-%{_libdir}/vmware/lib/libssl.so.0.9.7
+%{_libdir}/vmware/lib/libssl.so.0.9.8
 %dir %{_libdir}/vmware/lib/libexpat.so.0
 %attr(755,root,root) %{_libdir}/vmware/lib/libexpat.so.0/libexpat.so.0
 %dir %{_libdir}/vmware/lib/libgcc_s.so.1
@@ -508,8 +511,8 @@ fi
 %attr(755,root,root) %{_libdir}/vmware/lib/libstdc++.so.6/libstdc++.so.6
 %dir %{_libdir}/vmware/lib/libxml2.so.2
 %attr(755,root,root) %{_libdir}/vmware/lib/libxml2.so.2/libxml2.so.2
-%dir %{_libdir}/vmware/lib/libpixops.so.2.0.2
-%attr(755,root,root) %{_libdir}/vmware/lib/libpixops.so.2.0.2/libpixops.so.2.0.2
+#%dir %{_libdir}/vmware/lib/libpixops.so.2.0.2
+#%attr(755,root,root) %{_libdir}/vmware/lib/libpixops.so.2.0.2/libpixops.so.2.0.2
 
 %attr(555,root,root) %{_libdir}/vmware/lib/wrapper-gtk24.sh
 %endif
@@ -525,6 +528,7 @@ fi
 %dir %{_libdir}/vmware/hostd/docroot/client
 %dir %{_libdir}/vmware/hostd/docroot/sdk
 %dir %{_libdir}/vmware/hostd/docroot/downloads
+%dir %{_libdir}/vmware/hostd/extensions
 %{_libdir}/vmware/hostd/docroot/*.png
 %{_libdir}/vmware/hostd/docroot/*.js
 %{_libdir}/vmware/hostd/docroot/*.jpeg
@@ -535,8 +539,11 @@ fi
 %attr(644,root,root) %{_libdir}/vmware/hostd/docroot/client/clients-template.xml
 %attr(644,root,root) %{_libdir}/vmware/hostd/docroot/sdk/vim.wsdl
 %attr(644,root,root) %{_libdir}/vmware/hostd/docroot/sdk/vimService.wsdl
+%attr(644,root,root) %{_libdir}/vmware/hostd/docroot/sdk/vimServiceVersions.xml
+%attr(644,root,root) %{_libdir}/vmware/hostd/extensions/hostdiag/extension.xml
+%attr(644,root,root) %{_libdir}/vmware/hostd/extensions/hostdiag/locale/en/event.vmsg
 
-%attr(755,root,root) %{_libdir}/vmware/hostd/py
+#%attr(755,root,root) %{_libdir}/vmware/hostd/py
 %attr(755,root,root) %{_libdir}/vmware/hostd/wsdl
 %{_mandir}/man1/vmware.1*
 %attr(1777,root,root) %dir /var/run/vmware
@@ -562,7 +569,8 @@ fi
 %attr(444,root,root) %doc %{_docdir}/VMwareVix/*.html
 %attr(444,root,root) %doc %{_docdir}/VMwareVix/*.css
 %dir %{_docdir}/VMwareVix/samples
-%attr(666,root,root) %doc %{_docdir}/VMwareVix/samples/*.c
+%attr(444,root,root) %doc %{_docdir}/VMwareVix/samples/*.c
+%attr(444,root,root) %doc %{_docdir}/VMwareVix/samples/*Makefile
 
 %defattr(-,root,root,755)
 %dir %{_libdir}/vmware/webAccess
@@ -572,6 +580,7 @@ fi
 %dir %{_libdir}/vmware/webAccess/java/jre*
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/bin/*
 %dir %{_libdir}/vmware/webAccess/java/jre*/bin
+%dir %{_libdir}/vmware/webAccess/java/jre*/javaws
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib
 %ifarch %{ix86}
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386
@@ -579,7 +588,9 @@ fi
 %ifarch %{x8664}
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64
 %endif
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/javaws/javaws
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/*.so
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/client/*.so
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/headless/*.so
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/motif21/*.so
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/native_threads/*.so
@@ -592,6 +603,8 @@ fi
 %{_libdir}/vmware/webAccess/java/jre*/lib/font*
 %{_libdir}/vmware/webAccess/java/jre*/lib/im
 %{_libdir}/vmware/webAccess/java/jre*/lib/images
+%{_libdir}/vmware/webAccess/java/jre*/lib/javaws
+%{_libdir}/vmware/webAccess/java/jre*/lib/locale
 %{_libdir}/vmware/webAccess/java/jre*/lib/zi
 %{_libdir}/vmware/webAccess/java/jre*/lib/audio
 %{_libdir}/vmware/webAccess/java/jre*/lib/cmm
@@ -601,28 +614,41 @@ fi
 %{_libdir}/vmware/webAccess/java/jre*/lib/psfont*
 %{_libdir}/vmware/webAccess/java/jre*/[A-Z]*
 %attr(644,root,root) %{_libdir}/vmware/webAccess/vmware*
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/deploy/ffjcext.zip
+%dir %{_libdir}/vmware/webAccess/java/jre*/plugin/desktop
+%{_libdir}/vmware/webAccess/java/jre*/plugin/desktop/sun_java.*
 %ifarch %{ix86}
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/i386/awt_robot
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/i386/gtkhelper
 %{_libdir}/vmware/webAccess/java/jre*/lib/i386/jvm.cfg
+%{_libdir}/vmware/webAccess/java/jre*/lib/i386/client/Xusage.txt
+%{_libdir}/vmware/webAccess/java/jre*/lib/i386/client/classes.jsa
 %{_libdir}/vmware/webAccess/java/jre*/lib/i386/server/Xusage.txt
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386/client
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386/headless
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386/motif21
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386/native_threads
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386/server
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386/xawt
+%dir %{_libdir}/vmware/webAccess/java/jre*/plugin/i386
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/plugin/i386/*/*.so
 %endif
 %ifarch %{x8664}
 %{_libdir}/vmware/webAccess/java/jre*/.systemPrefs
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/awt_robot
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/gtkhelper
 %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/jvm.cfg
+%{_libdir}/vmware/webAccess/java/jre*/lib/amd64/client/Xusage.txt
+%{_libdir}/vmware/webAccess/java/jre*/lib/amd64/client/classes.jsa
 %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/server/Xusage.txt
+%dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/client
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/headless
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/motif21
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/native_threads
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/server
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/xawt
+%dir %{_libdir}/vmware/webAccess/java/jre*/plugin/desktop/amd64
+%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/plugin/amd64/*/*.so
 %endif
 %{_libdir}/vmware/webAccess/java/jre*/lib/classlist
 %{_libdir}/vmware/webAccess/java/jre*/lib/content-types.properties

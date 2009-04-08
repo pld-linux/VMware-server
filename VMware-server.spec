@@ -16,10 +16,10 @@
 #
 %include	/usr/lib/rpm/macros.perl
 #
-%define		ver	2.0.0
-%define		vixver	1.6.0
-%define		subver	116503
-%define		rel	0.8
+%define		ver	2.0.1
+%define		vixver	1.6.2
+%define		subver	156745
+%define		rel	0.1
 %{expand:%%global	ccver	%(%{__cc} -dumpversion)}
 #
 Summary:	VMware Server
@@ -535,7 +535,7 @@ fi
 %{_libdir}/vmware/hostd/docroot/*.html
 %{_libdir}/vmware/hostd/docroot/*.css
 %{_libdir}/vmware/hostd/docroot/en
-%attr(644,root,root) %{_libdir}/vmware/hostd/docroot/client/VMware-viclient.exe
+#%attr(644,root,root) %{_libdir}/vmware/hostd/docroot/client/VMware-viclient.exe
 %attr(644,root,root) %{_libdir}/vmware/hostd/docroot/client/clients-template.xml
 %attr(644,root,root) %{_libdir}/vmware/hostd/docroot/sdk/vim.wsdl
 %attr(644,root,root) %{_libdir}/vmware/hostd/docroot/sdk/vimService.wsdl

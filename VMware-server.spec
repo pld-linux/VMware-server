@@ -51,6 +51,7 @@ Source12:	%{name}-locations
 Patch1:		%{name}-config-kernel.patch
 #Patch2:		%{name}-config-pam.patch
 Patch3:		%{name}-initscript.patch
+Patch4:		%{name}-linux-2.6.30.patch
 NoSource:	0
 NoSource:	1
 NoSource:	2
@@ -265,6 +266,7 @@ cd lib/modules
 %{__tar} xf source/vmmon.tar
 %{__tar} xf source/vmnet.tar
 %{__tar} xf source/vsock.tar
+%patch4 -p1
 mv vmmon-only/linux/driver.c{,.dist}
 mv vmnet-only/hub.c{,.dist}
 mv vmnet-only/driver.c{,.dist}

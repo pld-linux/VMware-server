@@ -6,7 +6,7 @@ diff -Naur ./vmci-only/Makefile.org ./vmci-only/Makefile
  vm_check_build = $(shell if $(CC) $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) \
  	$(CPPFLAGS) $(CFLAGS) $(CFLAGS_KERNEL) \
 -	$(EXTRA_CFLAGS) -Iinclude2/asm/mach-default \
-+	$(EXTRA_CFLAGS) -I$(HEADER_DIR) -Iinclude2/asm/mach-default \
++	$(EXTRA_CFLAGS) -Iinclude -Iinclude2/asm/mach-default \
  	-DKBUILD_BASENAME=\"$(DRIVER)\" \
  	-Werror -S -o /dev/null -xc $(1) \
  	> /dev/null 2>&1; then echo "$(2)"; else echo "$(3)"; fi)
@@ -183,7 +183,7 @@ diff -Naur ./vmmon-only/Makefile.org ./vmmon-only/Makefile
  vm_check_build = $(shell if $(CC) $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) \
  	$(CPPFLAGS) $(CFLAGS) $(CFLAGS_KERNEL) \
 -	$(EXTRA_CFLAGS) -Iinclude2/asm/mach-default \
-+	$(EXTRA_CFLAGS) -I$(HEADER_DIR) -Iinclude2/asm/mach-default \
++	$(EXTRA_CFLAGS) -Iinclude -Iinclude2/asm/mach-default \
  	-DKBUILD_BASENAME=\"$(DRIVER)\" \
  	-Werror -S -o /dev/null -xc $(1) \
  	> /dev/null 2>&1; then echo "$(2)"; else echo "$(3)"; fi)
@@ -195,7 +195,7 @@ diff -Naur ./vmnet-only/Makefile.org ./vmnet-only/Makefile
  vm_check_build = $(shell if $(CC) $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) \
  	$(CPPFLAGS) $(CFLAGS) $(CFLAGS_KERNEL) \
 -	$(EXTRA_CFLAGS) -Iinclude2/asm/mach-default \
-+	$(EXTRA_CFLAGS) -I$(HEADER_DIR) -Iinclude2/asm/mach-default \
++	$(EXTRA_CFLAGS) -Iinclude -Iinclude2/asm/mach-default \
  	-DKBUILD_BASENAME=\"$(DRIVER)\" \
  	-Werror -S -o /dev/null -xc $(1) \
  	> /dev/null 2>&1; then echo "$(2)"; else echo "$(3)"; fi)
@@ -258,7 +258,7 @@ diff -Naur ./vsock-only/Makefile.org ./vsock-only/Makefile
  vm_check_build = $(shell if $(CC) $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) \
  	$(CPPFLAGS) $(CFLAGS) $(CFLAGS_KERNEL) \
 -	$(EXTRA_CFLAGS) -Iinclude2/asm/mach-default \
-+	$(EXTRA_CFLAGS) -I$(HEADER_DIR) -Iinclude2/asm/mach-default \
++	$(EXTRA_CFLAGS) -Iinclude -Iinclude2/asm/mach-default \
  	-DKBUILD_BASENAME=\"$(DRIVER)\" \
  	-Werror -S -o /dev/null -xc $(1) \
  	> /dev/null 2>&1; then echo "$(2)"; else echo "$(3)"; fi)

@@ -1,0 +1,39 @@
+patch from: http://communities.vmware.com/thread/231812
+
+diff -Naur ./vmnet-only/netif.c.org ./vmnet-only/netif.c
+--- ./vmnet-only/netif.c.org	2009-10-22 09:55:41.937580511 +0200
++++ ./vmnet-only/netif.c	2009-10-22 09:55:41.937580511 +0200
+@@ -194,10 +194,25 @@
+  *----------------------------------------------------------------------
+  */
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 30)
++static const struct net_device_ops vnet_netdev_ops = {
++   .ndo_init = VNetNetifProbe,
++   .ndo_open = VNetNetifOpen,
++   .ndo_start_xmit = VNetNetifStartXmit,
++   .ndo_stop = VNetNetifClose,
++   .ndo_get_stats = VNetNetifGetStats,
++   .ndo_set_mac_address = VNetNetifSetMAC,
++   .ndo_set_multicast_list = VNetNetifSetMulticast,
++};
++#endif
++
+ static void
+ VNetNetIfSetup(struct net_device *dev)  // IN:
+ {
+    ether_setup(dev); // turns on IFF_BROADCAST, IFF_MULTICAST
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 30)
++   dev->netdev_ops = &vnet_netdev_ops;
++#else
+    dev->init = VNetNetifProbe;
+    dev->open = VNetNetifOpen;
+    dev->hard_start_xmit = VNetNetifStartXmit;
+@@ -205,6 +220,7 @@
+    dev->get_stats = VNetNetifGetStats;
+    dev->set_mac_address = VNetNetifSetMAC;
+    dev->set_multicast_list = VNetNetifSetMulticast;
++#endif
+ #ifdef KERNEL_2_3_43
+    /*
+     * We cannot stuck... If someone will report problems under

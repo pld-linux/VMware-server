@@ -54,7 +54,7 @@ Source11:	%{name}-libs
 Source12:	%{name}-locations
 #Patch0:		%{name}-config-rc-inetd.patch
 Patch1:		%{name}-config-kernel.patch
-#Patch2:		%{name}-config-pam.patch
+Patch2:		%{name}-vmware-config-skip-pam.d-vmware-authd-install.patch
 Patch3:		%{name}-initscript.patch
 Patch4:		%{name}-linux-2.6.30.patch
 Patch5:		%{name}-linux-2.6.31.patch
@@ -264,7 +264,7 @@ rm -rf lib/isoimages # packaged by %{name}-isoimages.spec
 
 #%patch0 -p1
 %patch1 -p1
-#%patch2 -p1
+%patch2 -p1
 %patch3 -p1
 
 cd lib/modules

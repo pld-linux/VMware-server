@@ -1,3 +1,8 @@
+#
+# NOTE:
+# - direct download links seem to no longer work, you may need to get them
+#   on your own.
+#
 # TODO
 # - make vmware-config.pl work
 # - sane permissions
@@ -11,14 +16,14 @@
 %bcond_without	kernel		# don't build kernel modules
 %bcond_without	userspace	# don't build userspace utilities
 %bcond_without	internal_libs	# internal libs stuff
-%bcond_without	doc # package huge docs
+%bcond_without	doc		# package huge docs
 %bcond_with	verbose		# verbose build (V=1)
 #
 %include	/usr/lib/rpm/macros.perl
 #
-%define		ver	2.0.1
+%define		ver	2.0.2
 %define		vixver	1.6.2
-%define		subver	156745
+%define		subver	203138
 %define		rel	0.1
 %{expand:%%global	ccver	%(%{__cc} -dumpversion)}
 #
@@ -31,13 +36,13 @@ License:	custom, non-distributable
 Group:		Applications/Emulators
 # http://www.vmware.com/download/server/
 Source0:	http://download2.vmware.com/software/server/%{name}-%{ver}-%{subver}.i386.tar.gz
-# NoSource0-md5:
+# NoSource0-md5:	6eb844d1ab4aed6128438e5f587d10bb
 Source1:	http://download2.vmware.com/software/server/%{name}-%{ver}-%{subver}.x86_64.tar.gz
-# NoSource1-md5:
+# NoSource1-md5:	cc7aef813008eeb7150c21547d431b39
 Source2:	http://download2.vmware.com/software/server/VMware-vix-%{vixver}-%{subver}.i386.tar.gz
-# NoSource2-md5:
+# NoSource2-md5:	08daeafe41e2927d80dab143cf21e63c
 Source3:	http://download2.vmware.com/software/server/VMware-vix-%{vixver}-%{subver}.x86_64.tar.gz
-# NoSource3-md5:
+# NoSource3-md5:	95ddea5a0579a35887bd15b083ffea20
 Source4:	%{name}.png
 Source5:	%{name}.desktop
 Source6:	%{name}-authd.rc-inetd

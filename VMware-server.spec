@@ -538,6 +538,9 @@ fi
 %dir %{_libdir}/vmware/hostd/docroot/sdk
 %dir %{_libdir}/vmware/hostd/docroot/downloads
 %dir %{_libdir}/vmware/hostd/extensions
+%dir %{_libdir}/vmware/hostd/extensions/hostdiag
+%dir %{_libdir}/vmware/hostd/extensions/hostdiag/locale
+%dir %{_libdir}/vmware/hostd/extensions/hostdiag/locale/en
 %{_libdir}/vmware/hostd/docroot/*.png
 %{_libdir}/vmware/hostd/docroot/*.js
 %{_libdir}/vmware/hostd/docroot/*.jpeg
@@ -589,7 +592,7 @@ fi
 %dir %{_libdir}/vmware/webAccess/java/jre*
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/bin/*
 %dir %{_libdir}/vmware/webAccess/java/jre*/bin
-%dir %{_libdir}/vmware/webAccess/java/jre*/javaws
+#%dir %{_libdir}/vmware/webAccess/java/jre*/javaws
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib
 %ifarch %{ix86}
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/i386
@@ -597,9 +600,9 @@ fi
 %ifarch %{x8664}
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64
 %endif
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/javaws/javaws
+#%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/javaws/javaws
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/*.so
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/client/*.so
+#%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/client/*.so
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/headless/*.so
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/motif21/*.so
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/*/native_threads/*.so
@@ -612,8 +615,8 @@ fi
 %{_libdir}/vmware/webAccess/java/jre*/lib/font*
 %{_libdir}/vmware/webAccess/java/jre*/lib/im
 %{_libdir}/vmware/webAccess/java/jre*/lib/images
-%{_libdir}/vmware/webAccess/java/jre*/lib/javaws
-%{_libdir}/vmware/webAccess/java/jre*/lib/locale
+#%{_libdir}/vmware/webAccess/java/jre*/lib/javaws
+#%{_libdir}/vmware/webAccess/java/jre*/lib/locale
 %{_libdir}/vmware/webAccess/java/jre*/lib/zi
 %{_libdir}/vmware/webAccess/java/jre*/lib/audio
 %{_libdir}/vmware/webAccess/java/jre*/lib/cmm
@@ -623,9 +626,9 @@ fi
 %{_libdir}/vmware/webAccess/java/jre*/lib/psfont*
 %{_libdir}/vmware/webAccess/java/jre*/[A-Z]*
 %attr(644,root,root) %{_libdir}/vmware/webAccess/vmware*
-%dir %{_libdir}/vmware/webAccess/java/jre*/lib/deploy/ffjcext.zip
-%dir %{_libdir}/vmware/webAccess/java/jre*/plugin/desktop
-%{_libdir}/vmware/webAccess/java/jre*/plugin/desktop/sun_java.*
+#%dir %{_libdir}/vmware/webAccess/java/jre*/lib/deploy/ffjcext.zip
+#%dir %{_libdir}/vmware/webAccess/java/jre*/plugin/desktop
+#%{_libdir}/vmware/webAccess/java/jre*/plugin/desktop/sun_java.*
 %ifarch %{ix86}
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/i386/awt_robot
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/i386/gtkhelper
@@ -647,17 +650,17 @@ fi
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/awt_robot
 %attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/gtkhelper
 %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/jvm.cfg
-%{_libdir}/vmware/webAccess/java/jre*/lib/amd64/client/Xusage.txt
-%{_libdir}/vmware/webAccess/java/jre*/lib/amd64/client/classes.jsa
+#%{_libdir}/vmware/webAccess/java/jre*/lib/amd64/client/Xusage.txt
+#%{_libdir}/vmware/webAccess/java/jre*/lib/amd64/client/classes.jsa
 %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/server/Xusage.txt
-%dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/client
+#%dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/client
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/headless
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/motif21
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/native_threads
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/server
 %dir %{_libdir}/vmware/webAccess/java/jre*/lib/amd64/xawt
-%dir %{_libdir}/vmware/webAccess/java/jre*/plugin/desktop/amd64
-%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/plugin/amd64/*/*.so
+#%dir %{_libdir}/vmware/webAccess/java/jre*/plugin/desktop/amd64
+#%attr(555,root,root) %{_libdir}/vmware/webAccess/java/jre*/plugin/amd64/*/*.so
 %endif
 %{_libdir}/vmware/webAccess/java/jre*/lib/classlist
 %{_libdir}/vmware/webAccess/java/jre*/lib/content-types.properties

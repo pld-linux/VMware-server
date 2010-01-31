@@ -1,0 +1,28 @@
+--- vmware-server-distrib/bin/vmware-config.pl~	2010-01-31 18:08:30.000000000 +0100
++++ vmware-server-distrib/bin/vmware-config.pl	2010-01-31 18:10:48.000000000 +0100
+@@ -8501,7 +8501,6 @@
+          . '>/dev/null 2>&1');
+ 
+   configure_authd();
+-  configure_wgs_pam_d();
+   fix_vmlist_permissions();
+ }
+ 
+@@ -8814,17 +8813,6 @@
+   install_symlink($webAccessLogDir . '/work', $work_dir);
+ }
+ 
+-#  Move the /etc/vmware/pam.d information to its real home in /etc/pam.d
+-sub configure_wgs_pam_d {
+-  my $dir = '/etc/pam.d';
+-  my $o_file = $gRegistryDir . '/pam.d/vmware-authd';
+-
+-  if (system(shell_string($gHelper{'cp'}) . ' -p ' . $o_file . ' ' . $dir)) {
+-    error('Unable to copy the VMware vmware-authd PAM file to ' . $dir
+-          . "\n\n");
+-  }
+-}
+-
+ # both configuration.
+ sub show_net_config {
+   my $bridge_flag = shift;

@@ -1,4 +1,7 @@
 #
+# STATUS:
+# - 2.0.2.203138-0.2 works fine th-x86_64
+#
 # NOTE:
 # - direct download links seem to no longer work, you may need to get them
 #   on your own.
@@ -24,7 +27,7 @@
 %define		ver	2.0.2
 %define		vixver	1.6.2
 %define		subver	203138
-%define		rel	0.1
+%define		rel	0.2
 %{expand:%%global	ccver	%(%{__cc} -dumpversion)}
 #
 Summary:	VMware Server

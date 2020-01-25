@@ -22,7 +22,6 @@
 %bcond_without	doc		# package huge docs
 %bcond_with	verbose		# verbose build (V=1)
 #
-%include	/usr/lib/rpm/macros.perl
 #
 %define		ver	2.0.2
 %define		vixver	1.6.2
